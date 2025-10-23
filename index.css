@@ -132,13 +132,13 @@ header h1 {
   position: relative;
   width: 260px;
   height: 50px; /* Tinggi tetap untuk stabilitas */
+  display: flex;
+  justify-content: center;
+  align-items: center;
 }
 
 #market-display-text {
-  position: absolute;
-  top: 50%;
-  left: 50%;
-  transform: translate(-50%, -50%);
+  /* position, top, left, transform dihapus untuk memperbaiki posisi saat screenshot */
   white-space: nowrap; /* Mencegah wrap pada teks panjang */
   font-size: 1.8rem;
   font-weight: 700;
