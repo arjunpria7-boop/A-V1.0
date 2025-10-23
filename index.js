@@ -18,7 +18,7 @@ const marketDisplayText = document.getElementById('market-display-text'); // New
 const marketDate = document.getElementById('market-date');
 const dataHeader = document.getElementById('data-header');
 const headerElement = document.querySelector('header');
-const screenshotButton = document.getElementById('screenshot-btn');
+const logoElement = document.querySelector('.arj-logo');
 
 const resultElements = {
   '2d': document.getElementById('result-2d'),
@@ -329,7 +329,7 @@ function main() {
 
   const ai = new GoogleGenAI({ apiKey: API_KEY });
   predictButton.addEventListener('click', () => handlePrediction(ai));
-  screenshotButton.addEventListener('click', handleScreenshot);
+  logoElement.addEventListener('click', handleScreenshot);
 
   // Add real-time validation listeners
   inputElements.forEach(input => {
