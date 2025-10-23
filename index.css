@@ -138,8 +138,13 @@ header h1 {
 }
 
 #market-display-text {
-  /* position, top, left, transform dihapus untuk memperbaiki posisi saat screenshot */
-  white-space: nowrap; /* Mencegah wrap pada teks panjang */
+  position: absolute;
+  top: 50%;
+  left: 0;
+  width: 100%;
+  transform: translateY(-50%);
+  text-align: center;
+  white-space: nowrap;
   font-size: 1.8rem;
   font-weight: 700;
   color: var(--text-color);
