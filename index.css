@@ -316,7 +316,7 @@ header h1 {
 
 /* Kelas utilitas baru untuk menyembunyikan elemen selama screenshot */
 .screenshot-hidden {
-  display: none !important;
+  visibility: hidden !important;
 }
 
 #error-container {
