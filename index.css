@@ -111,6 +111,12 @@ header {
   padding: 0 40px; 
 }
 
+#market-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.1rem; /* Memberi sedikit jarak antara judul dan tanggal */
+}
 
 #download-btn {
   position: absolute;
@@ -162,8 +168,8 @@ header {
 #market-display-text {
   position: absolute;
   top: 50%;
-  left: 25px; /* Digeser ke kanan */
-  transform: translateY(-50%);
+  left: 50%;
+  transform: translate(-50%, -50%);
   text-align: center;
   white-space: nowrap;
   font-size: 1.8rem;
