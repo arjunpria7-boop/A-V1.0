@@ -118,6 +118,7 @@ async function handleDownload() {
     const canvas = await html2canvas(captureElement, {
       useCORS: true,
       backgroundColor: '#121212',
+      scale: 3, // Meningkatkan resolusi gambar 3x untuk kualitas tertinggi
     });
     
     const marketName = marketSelect.value || 'PREDIKSI';
