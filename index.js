@@ -109,6 +109,9 @@ async function handleScreenshot() {
   const captureElement = document.getElementById('app-container');
   if (!captureElement) return;
 
+  // Sembunyikan elemen select yang mengganggu sebelum screenshot
+  marketSelect.classList.add('screenshot-hidden');
+
   try {
     document.body.style.cursor = 'wait';
     const canvas = await html2canvas(captureElement, {
@@ -140,6 +143,8 @@ async function handleScreenshot() {
     console.error('Gagal mengambil tangkapan layar:', error);
     setErrorState('Gagal mengambil tangkapan layar. Silakan coba lagi.');
   } finally {
+    // Pastikan elemen select selalu ditampilkan kembali setelah proses selesai
+    marketSelect.classList.remove('screenshot-hidden');
     document.body.style.cursor = 'default';
   }
 }
