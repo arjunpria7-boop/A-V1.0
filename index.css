@@ -139,8 +139,7 @@ header h1 {
   top: 50%;
   left: 50%;
   transform: translate(-50%, -50%);
-  width: 100%;
-  text-align: center;
+  white-space: nowrap; /* Mencegah wrap pada teks panjang */
   font-size: 1.8rem;
   font-weight: 700;
   color: var(--text-color);
