@@ -290,7 +290,7 @@ function main() {
     const r = Math.floor(Math.random() * 156) + 100; // Brighter colors
     const g = Math.floor(Math.random() * 156) + 100;
     const b = Math.floor(Math.random() * 156) + 100;
-    return `rgba(${r}, ${g}, ${b}, 0.7)`;
+    return `rgba(${r}, ${g}, ${b}, 0.2)`;
   }
 
   function getContrastColor(rgbaString) {
@@ -310,13 +310,13 @@ function main() {
     const market = marketSelect.value;
     let bgColor;
     if (market === 'HONGKONG') {
-      bgColor = 'rgba(211, 47, 47, 0.7)'; // Red
+      bgColor = 'rgba(211, 47, 47, 0.2)'; // Red
     } else if (market === 'SYDNEY') {
-      bgColor = 'rgba(255, 99, 71, 0.7)'; // Tomato (#ff6347)
+      bgColor = 'rgba(255, 99, 71, 0.2)'; // Tomato (#ff6347)
     } else if (market === 'SINGAPORE') {
-      bgColor = 'rgba(0, 255, 255, 0.7)'; // Cyan (#00ffff)
+      bgColor = 'rgba(0, 255, 255, 0.2)'; // Cyan (#00ffff)
     } else if (market.includes('TOTO MACAU')) {
-      bgColor = 'rgba(95, 158, 160, 0.7)'; // CadetBlue (#5f9ea0)
+      bgColor = 'rgba(95, 158, 160, 0.2)'; // CadetBlue (#5f9ea0)
     } else {
       bgColor = getRandomColor();
     }
