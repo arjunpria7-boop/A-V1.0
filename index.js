@@ -111,18 +111,29 @@ async function handleScreenshot() {
   try {
     document.body.style.cursor = 'wait';
     const canvas = await html2canvas(captureElement, {
-      useCORS: true, // Important for external images like the logo
-      backgroundColor: '#121212', // Match app background
+      useCORS: true,
+      backgroundColor: '#121212',
     });
     
     const marketName = marketSelect.value || 'PREDIKSI';
     const dateString = (marketDate.textContent || 'TANPA_TANGGAL').replace(/ /g, '_');
     const filename = `${marketName}_${dateString}.png`;
 
-    const link = document.createElement('a');
-    link.href = canvas.toDataURL('image/png');
-    link.download = filename;
-    link.click();
+    // --- NEW LOGIC: Check for native Android interface ---
+    if (window.Android && typeof window.Android.saveImage === 'function') {
+      // Running inside Median/Android app with the bridge
+      // Convert canvas to base64 and remove the data URL prefix
+      const base64Data = canvas.toDataURL('image/png').replace(/^data:image\/png;base64,/, '');
+      // Call the native function
+      window.Android.saveImage(base64Data, filename);
+      // You might want a native toast message to confirm save, configured in Median
+    } else {
+      // Fallback for regular web browsers
+      const link = document.createElement('a');
+      link.href = canvas.toDataURL('image/png');
+      link.download = filename;
+      link.click();
+    }
 
   } catch (error) {
     console.error('Gagal mengambil tangkapan layar:', error);
