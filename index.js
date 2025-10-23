@@ -14,11 +14,11 @@ const resultsContainer = document.getElementById('results-container');
 const errorContainer = document.getElementById('error-container');
 const errorMessageElement = document.getElementById('error-message');
 const marketSelect = document.getElementById('market-select');
-const marketDisplayText = document.getElementById('market-display-text'); // New display element
+const marketDisplayText = document.getElementById('market-display-text');
 const marketDate = document.getElementById('market-date');
 const dataHeader = document.getElementById('data-header');
 const headerElement = document.querySelector('header');
-const logoElement = document.querySelector('.arj-logo');
+const downloadBtn = document.getElementById('download-btn'); // Updated ID
 
 const resultElements = {
   '2d': document.getElementById('result-2d'),
@@ -104,13 +104,14 @@ function showConfigurationError() {
   }
 }
 
-// --- Screenshot Logic ---
-async function handleScreenshot() {
+// --- Screenshot/Download Logic ---
+async function handleDownload() {
   const captureElement = document.getElementById('app-container');
   if (!captureElement) return;
 
-  // Sembunyikan elemen select yang mengganggu sebelum screenshot
+  // Sembunyikan elemen select dan tombol unduh yang mengganggu sebelum screenshot
   marketSelect.classList.add('screenshot-hidden');
+  downloadBtn.classList.add('screenshot-hidden');
 
   try {
     document.body.style.cursor = 'wait';
@@ -141,10 +142,11 @@ async function handleScreenshot() {
 
   } catch (error) {
     console.error('Gagal mengambil tangkapan layar:', error);
-    setErrorState('Gagal mengambil tangkapan layar. Silakan coba lagi.');
+    setErrorState('Gagal mengunduh gambar. Silakan coba lagi.');
   } finally {
-    // Pastikan elemen select selalu ditampilkan kembali setelah proses selesai
+    // Pastikan elemen selalu ditampilkan kembali setelah proses selesai
     marketSelect.classList.remove('screenshot-hidden');
+    downloadBtn.classList.remove('screenshot-hidden');
     document.body.style.cursor = 'default';
   }
 }
@@ -329,7 +331,7 @@ function main() {
 
   const ai = new GoogleGenAI({ apiKey: API_KEY });
   predictButton.addEventListener('click', () => handlePrediction(ai));
-  logoElement.addEventListener('click', handleScreenshot);
+  downloadBtn.addEventListener('click', handleDownload);
 
   // Add real-time validation listeners
   inputElements.forEach(input => {
