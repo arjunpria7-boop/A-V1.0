@@ -116,7 +116,7 @@ async function handleScreenshot() {
     });
     
     const marketName = marketSelect.value || 'PREDIKSI';
-    const dateString = (marketDate.value || 'TANPA_TANGGAL').replace(/ /g, '_');
+    const dateString = (marketDate.textContent || 'TANPA_TANGGAL').replace(/ /g, '_');
     const filename = `${marketName}_${dateString}.png`;
 
     const link = document.createElement('a');
@@ -162,7 +162,7 @@ async function handlePrediction(ai) {
   try {
     // 2. Construct Prompt
     const marketNameText = marketSelect.value;
-    const marketDateText = marketDate.value?.trim() || '';
+    const marketDateText = marketDate.textContent?.trim() || '';
     const marketText = `${marketNameText} ${marketDateText}`.trim();
     const formattedInputs = inputValues.map((val, i) => `Data ke-${i + 1}: ${val}`).join('\n');
 
@@ -264,7 +264,7 @@ function main() {
     const day = today.getDate();
     const monthName = months[today.getMonth()];
     const year = today.getFullYear();
-    marketDate.value = `${day} ${monthName} ${year}`;
+    marketDate.textContent = `${day} ${monthName} ${year}`;
   }
 
   function getRandomColor() {
