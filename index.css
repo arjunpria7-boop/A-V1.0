@@ -2,6 +2,8 @@
 
 
 
+
+
 .arj-logo {
   width: 120px; /* Ukuran logo disesuaikan */
   height: auto;
@@ -139,7 +141,7 @@ header h1 {
   border: none;
   font-size: 1.8rem;
   font-weight: 700;
-  padding: 0.1rem 0.5rem;
+  padding: 0.4rem 0.5rem; /* Increased vertical padding */
   text-align: center;
   cursor: pointer;
   -webkit-appearance: none;

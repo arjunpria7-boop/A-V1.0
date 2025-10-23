@@ -305,6 +305,7 @@ function main() {
     
     const contrastColor = getContrastColor(bgColor);
     marketSelect.style.color = contrastColor;
+    marketDate.style.color = contrastColor;
   }
 
   setDateAutomatically();
