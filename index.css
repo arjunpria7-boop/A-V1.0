@@ -60,9 +60,8 @@ body {
   line-height: 1.4;
   padding: 0.5rem;
   min-height: 100vh; /* Minimum height, allows scrolling */
-  display: flex;
-  align-items: center; /* Center vertically on large screens */
-  justify-content: center;
+  display: grid;
+  place-items: center;
 }
 
 #app-container {
@@ -97,31 +96,19 @@ header {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  flex-shrink: 0;
-  padding: 0.25rem 0.5rem;
   position: relative;
+  padding: 0.5rem 1rem;
 }
 
-.header-main {
+#market-info {
   display: flex;
   flex-direction: column;
-  align-items: center;
-  flex-grow: 1;
-  /* Beri sedikit ruang agar tombol tidak menempel */
-  padding: 0 40px; 
-}
-
-#market-container {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 0.1rem; /* Memberi sedikit jarak antara judul dan tanggal */
+  align-items: flex-start;
+  position: relative;
+  z-index: 2;
 }
 
 #download-btn {
-  position: absolute;
-  top: 8px;
-  right: 8px;
   background-color: rgba(255, 255, 255, 0.1);
   border: 1px solid rgba(255, 255, 255, 0.2);
   border-radius: 50%;
@@ -133,6 +120,9 @@ header {
   cursor: pointer;
   transition: background-color 0.2s ease;
   padding: 6px;
+  flex-shrink: 0;
+  position: relative;
+  z-index: 2;
 }
 
 #download-btn:hover {
@@ -145,57 +135,46 @@ header {
   fill: var(--text-color);
 }
 
-
 .arj-logo {
-  width: 120px;
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  transform: translate(-50%, -50%);
+  width: 250px;
   height: auto;
-  transition: transform 0.3s ease-in-out;
-}
-
-.arj-logo:hover {
-  transform: scale(1.05) rotate(-2deg);
+  pointer-events: none;
+  opacity: 0.1;
+  z-index: 1;
 }
 
 .market-select-wrapper {
   position: relative;
-  width: 260px;
-  height: 50px; /* Tinggi tetap untuk stabilitas */
-  display: flex;
-  justify-content: center;
-  align-items: center;
 }
 
 #market-display-text {
-  position: absolute;
-  top: 50%;
-  left: 50%;
-  transform: translate(-50%, -50%);
-  text-align: center;
-  white-space: nowrap;
-  font-size: 1.8rem;
+  font-size: 1.8rem; /* Memperbesar nama pasaran */
   font-weight: 700;
   color: var(--text-color);
   transition: color 0.4s ease;
-  pointer-events: none; /* Klik akan melewati div ini */
+  pointer-events: none;
+  line-height: 1.2;
 }
 
 #market-select {
-  /* Tetap absolut untuk menutupi div */
   position: absolute;
   top: 0;
   left: 0;
   width: 100%;
   height: 100%;
   background-color: transparent;
-  color: transparent; /* Teks select tidak perlu terlihat */
   border: none;
-  font-size: 1.8rem;
-  font-weight: 700;
   cursor: pointer;
   -webkit-appearance: none;
   -moz-appearance: none;
   appearance: none;
-  opacity: 0; /* Sembunyikan select asli */
+  opacity: 0;
+  font-size: 1.8rem; /* Cocokkan ukuran font untuk area klik */
+  font-weight: 700;
 }
 
 #market-select:focus {
@@ -210,15 +189,12 @@ header {
 
 #market-date {
   background: transparent;
-  border: 1px solid transparent;
+  border: none;
   color: var(--text-secondary-color);
-  font-size: 0.9rem;
+  font-size: 0.8rem;
   font-weight: 400;
-  padding: 0.1rem 0.5rem;
-  border-radius: 6px;
-  transition: background-color 0.2s, box-shadow 0.2s;
-  text-align: center;
-  width: 150px;
+  padding: 0;
+  text-align: left;
   cursor: default;
 }
 
