@@ -21,8 +21,6 @@ const headerElement = document.querySelector('header');
 const downloadBtn = document.getElementById('download-btn'); // Updated ID
 
 const resultElements = {
-  '2d': document.getElementById('result-2d'),
-  '3d': document.getElementById('result-3d'),
   '4d': document.getElementById('result-4d'),
   tunggal: document.getElementById('result-tunggal'),
   bbfs: document.getElementById('result-bbfs'),
@@ -65,13 +63,27 @@ function setSuccessState(resultJson) {
     el.parentElement.classList.remove('analyzing');
   });
 
-  resultElements['2d'].textContent = resultJson.prediction_2_digit;
-  resultElements['3d'].textContent = resultJson.prediction_3_digit;
   resultElements['4d'].textContent = resultJson.prediction_4_digit;
   resultElements.tunggal.textContent = resultJson.cb;
   resultElements.bbfs.textContent = resultJson.bbfs;
-  resultElements.bb3d.textContent = resultJson.bb_3d;
-  resultElements.bb2d.textContent = resultJson.bb_2d;
+
+  // Format BB 3D result into two lines
+  const bb3d_parts = resultJson.bb_3d.split('*');
+  if (bb3d_parts.length === 4) {
+      const formatted_bb3d = `${bb3d_parts.slice(0, 2).join('*')}<br>${bb3d_parts.slice(2, 4).join('*')}`;
+      resultElements.bb3d.innerHTML = formatted_bb3d;
+  } else {
+      resultElements.bb3d.textContent = resultJson.bb_3d; // Fallback
+  }
+
+  // Format BB 2D result into two lines
+  const bb2d_parts = resultJson.bb_2d.split('*');
+  if (bb2d_parts.length === 6) {
+      const formatted_bb2d = `${bb2d_parts.slice(0, 3).join('*')}<br>${bb2d_parts.slice(3, 6).join('*')}`;
+      resultElements.bb2d.innerHTML = formatted_bb2d;
+  } else {
+      resultElements.bb2d.textContent = resultJson.bb_2d; // Fallback
+  }
 
   setIdleState();
 }
