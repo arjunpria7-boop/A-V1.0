@@ -14,6 +14,7 @@ const resultsContainer = document.getElementById('results-container');
 const errorContainer = document.getElementById('error-container');
 const errorMessageElement = document.getElementById('error-message');
 const marketSelect = document.getElementById('market-select');
+const marketDisplayText = document.getElementById('market-display-text'); // New display element
 const marketDate = document.getElementById('market-date');
 const dataHeader = document.getElementById('data-header');
 const headerElement = document.querySelector('header');
@@ -315,7 +316,7 @@ function main() {
     headerElement.style.backgroundColor = bgColor;
     
     const contrastColor = getContrastColor(bgColor);
-    marketSelect.style.color = contrastColor;
+    marketDisplayText.style.color = contrastColor; // Apply color to the display text
     marketDate.style.color = contrastColor;
   }
 
@@ -337,6 +338,7 @@ function main() {
   });
 
   marketSelect.addEventListener('change', () => {
+    marketDisplayText.textContent = marketSelect.value; // Update display text on change
     if (marketSelect.value === 'SINGAPORE') {
       dataHeader.textContent = 'Data Mingguan';
     } else {

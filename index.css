@@ -1,11 +1,3 @@
-
-
-
-
-
-
-
-
 .arj-logo {
   width: 120px; /* Ukuran logo disesuaikan */
   height: auto;
@@ -137,26 +129,49 @@ header h1 {
   gap: 0;
 }
 
+.market-select-wrapper {
+  position: relative;
+  width: 260px;
+  height: 50px; /* Atur tinggi agar sesuai */
+}
+
+#market-display-text {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.8rem;
+  font-weight: 700;
+  color: var(--text-color);
+  transition: color 0.4s ease;
+  pointer-events: none; /* Klik akan melewati div ini */
+}
+
 #market-select {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
   background-color: transparent;
   color: var(--text-color);
   border: none;
   font-size: 1.8rem;
   font-weight: 700;
-  padding: 0.6rem 0.5rem; /* Further increased vertical padding to prevent screenshot clipping */
   text-align: center;
   cursor: pointer;
   -webkit-appearance: none;
   -moz-appearance: none;
   appearance: none;
-  transition: color 0.4s ease;
-  width: 260px; /* Lebar tetap untuk stabilitas posisi */
+  opacity: 0; /* Sembunyikan select asli */
 }
 
 #market-select:focus {
   outline: none;
-  animation: none;
-  color: var(--focus-color);
 }
 
 #market-select option {
@@ -164,7 +179,6 @@ header h1 {
   color: var(--text-color);
   font-weight: 700;
 }
-
 
 #market-date {
   background: transparent;
