@@ -9,7 +9,8 @@
     <script type="importmap">
       {
         "imports": {
-          "@google/genai": "https://esm.run/@google/genai"
+          "@google/genai": "https://esm.run/@google/genai",
+          "html2canvas": "https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.esm.min.js"
         }
       }
     </script>
@@ -17,21 +18,71 @@
   <body>
     <div id="app-container">
       <header>
-        <svg
-          class="arj-loader"
-          width="120"
-          height="85"
-          viewBox="0 0 100 80"
-          xmlns="http://www.w3.org/2000/svg"
-        >
-          <text class="logo-text" x="50" y="45" text-anchor="middle">ARJ</text>
-          <text class="subtitle-text" x="50" y="70" text-anchor="middle">PREDICT</text>
-        </svg>
+        <img src="https://i.postimg.cc/zfC7ZX24/logo-ARJ.png" alt="ARJ Predict Logo" class="arj-logo">
         <div id="market-container">
             <select id="market-select">
               <option value="HONGKONG" selected>HONGKONG</option>
+              <option value="CAMBODIA">CAMBODIA</option>
+              <option value="CHINA">CHINA</option>
               <option value="SINGAPORE">SINGAPORE</option>
               <option value="SYDNEY">SYDNEY</option>
+              <option value="TAIWAN">TAIWAN</option>
+              <option value="TOTO MACAU 00">TOTO MACAU 00</option>
+              <option value="TOTO MACAU 13">TOTO MACAU 13</option>
+              <option value="TOTO MACAU 16">TOTO MACAU 16</option>
+              <option value="TOTO MACAU 19">TOTO MACAU 19</option>
+              <option value="TOTO MACAU 22">TOTO MACAU 22</option>
+              <option value="TOTO MACAU 23">TOTO MACAU 23</option>
+              <option value="SYDNEY LOTTO">SYDNEY LOTTO</option>
+              <option value="HONGKONG LOTTO">HONGKONG LOTTO</option>
+              <option value="GERMANI PLUS">GERMANI PLUS</option>
+              <option value="KENTUCY MID">KENTUCY MID</option>
+              <option value="TEXAS DAY">TEXAS DAY</option>
+              <option value="NEW YORK MID">NEW YORK MID</option>
+              <option value="CAROLINA DAY">CAROLINA DAY</option>
+              <option value="CHICAGO LOTTERY">CHICAGO LOTTERY</option>
+              <option value="OREGON 01">OREGON 01</option>
+              <option value="GANGNAM">GANGNAM</option>
+              <option value="BERLIN LOTTERY">BERLIN LOTTERY</option>
+              <option value="NAMDONG">NAMDONG</option>
+              <option value="TEXAS EVENING">TEXAS EVENING</option>
+              <option value="OREGON 04">OREGON 04</option>
+              <option value="QATAR MORNING">QATAR MORNING</option>
+              <option value="GWANSAN POOLS">GWANSAN POOLS</option>
+              <option value="YORDANIA">YORDANIA</option>
+              <option value="CALIFORNIA">CALIFORNIA</option>
+              <option value="FLORIDA EVE">FLORIDA EVE</option>
+              <option value="OREGON 07">OREGON 07</option>
+              <option value="SIPRUS MORNING">SIPRUS MORNING</option>
+              <option value="NEW YORK EVE">NEW YORK EVE</option>
+              <option value="KENTUKY EVE">KENTUKY EVE</option>
+              <option value="TEXAS NIGHT">TEXAS NIGHT</option>
+              <option value="CAROLINA EVENING">CAROLINA EVENING</option>
+              <option value="MAGNUM CAMBODIA">MAGNUM CAMBODIA</option>
+              <option value="BULLSEYE">BULLSEYE</option>
+              <option value="QATAR MIDDAY">QATAR MIDDAY</option>
+              <option value="OREGON 10">OREGON 10</option>
+              <option value="FUJI LOTTO">FUJI LOTTO</option>
+              <option value="SIPRUS MIDDAY">SIPRUS MIDDAY</option>
+              <option value="MANILA LOTTERY">MANILA LOTTERY</option>
+              <option value="VIETNAM">VIETNAM</option>
+              <option value="CHINA POOLS">CHINA POOLS</option>
+              <option value="QATAR EVENING">QATAR EVENING</option>
+              <option value="NANOI LOTERRY">NANOI LOTERRY</option>
+              <option value="JAPAN POOLS">JAPAN POOLS</option>
+              <option value="BANGKOK POOL">BANGKOK POOL</option>
+              <option value="SIPRUS EVENING">SIPRUS EVENING</option>
+              <option value="GIEYANG POOLS">GIEYANG POOLS</option>
+              <option value="MIAMI LOTTERY">MIAMI LOTTERY</option>
+              <option value="OSAKA LOTTERY">OSAKA LOTTERY</option>
+              <option value="QATAR NIGHT">QATAR NIGHT</option>
+              <option value="PCSO">PCSO</option>
+              <option value="TENNESE">TENNESE</option>
+              <option value="DUBAI">DUBAI</option>
+              <option value="SIPRUS NIGHT">SIPRUS NIGHT</option>
+              <option value="TEXAS MORNING">TEXAS MORNING</option>
+              <option value="GENTING LOTTERY">GENTING LOTTERY</option>
+              <option value="ALASKA">ALASKA</option>
             </select>
             <input type="text" id="market-date" readonly />
         </div>
@@ -39,9 +90,6 @@
       <main>
         <div class="input-section">
           <h2 id="data-header">Data Keluaran Terakhir</h2>
-          <a id="fetch-data-btn" href="https://jastipsugiono.xyz/daftar?ref_id=d2404d01" target="_blank" rel="noopener noreferrer">
-             <i class="fa-solid fa-arrow-up-right-from-square"></i> Ambil Data Keluaran
-          </a>
           
           <div id="input-grid">
             <input type="tel" inputmode="numeric" id="day1" maxlength="4" pattern="\d{4}" placeholder="xxxx" />

@@ -5,6 +5,7 @@
 
 import { GoogleGenAI, Type } from '@google/genai';
 import { API_KEY } from './env.js';
+import html2canvas from 'html2canvas';
 
 // --- DOM Elements ---
 const predictButton = document.getElementById('predict-btn');
@@ -15,6 +16,8 @@ const errorMessageElement = document.getElementById('error-message');
 const marketSelect = document.getElementById('market-select');
 const marketDate = document.getElementById('market-date');
 const dataHeader = document.getElementById('data-header');
+const headerElement = document.querySelector('header');
+const logoElement = document.querySelector('.arj-logo');
 
 const resultElements = {
   '2d': document.getElementById('result-2d'),
@@ -99,6 +102,36 @@ function showConfigurationError() {
     predictButton.style.cursor = 'not-allowed';
   }
 }
+
+// --- Screenshot Logic ---
+async function handleScreenshot() {
+  const captureElement = document.getElementById('app-container');
+  if (!captureElement) return;
+
+  try {
+    document.body.style.cursor = 'wait';
+    const canvas = await html2canvas(captureElement, {
+      useCORS: true, // Important for external images like the logo
+      backgroundColor: '#121212', // Match app background
+    });
+    
+    const marketName = marketSelect.value || 'PREDIKSI';
+    const dateString = (marketDate.value || 'TANPA_TANGGAL').replace(/ /g, '_');
+    const filename = `${marketName}_${dateString}.png`;
+
+    const link = document.createElement('a');
+    link.href = canvas.toDataURL('image/png');
+    link.download = filename;
+    link.click();
+
+  } catch (error) {
+    console.error('Gagal mengambil tangkapan layar:', error);
+    setErrorState('Gagal mengambil tangkapan layar. Silakan coba lagi.');
+  } finally {
+    document.body.style.cursor = 'default';
+  }
+}
+
 
 // --- Main Prediction Logic ---
 
@@ -234,10 +267,51 @@ function main() {
     marketDate.value = `${day} ${monthName} ${year}`;
   }
 
+  function getRandomColor() {
+    const r = Math.floor(Math.random() * 156) + 100; // Brighter colors
+    const g = Math.floor(Math.random() * 156) + 100;
+    const b = Math.floor(Math.random() * 156) + 100;
+    return `rgba(${r}, ${g}, ${b}, 0.7)`;
+  }
+
+  function getContrastColor(rgbaString) {
+    if (!rgbaString) return '#FFFFFF';
+    const match = rgbaString.match(/rgba?\((\d+),\s*(\d+),\s*(\d+)/);
+    if (!match) return '#FFFFFF';
+
+    const r = parseInt(match[1], 10);
+    const g = parseInt(match[2], 10);
+    const b = parseInt(match[3], 10);
+
+    const luminance = (0.299 * r + 0.587 * g + 0.114 * b);
+    return luminance > 149 ? '#111111' : '#FFFFFF';
+  }
+
+  function updateHeaderBackground() {
+    const market = marketSelect.value;
+    let bgColor;
+    if (market === 'HONGKONG') {
+      bgColor = 'rgba(211, 47, 47, 0.7)'; // Red
+    } else if (market === 'SYDNEY') {
+      bgColor = 'rgba(255, 99, 71, 0.7)'; // Tomato (#ff6347)
+    } else if (market === 'SINGAPORE') {
+      bgColor = 'rgba(0, 255, 255, 0.7)'; // Cyan (#00ffff)
+    } else if (market.includes('TOTO MACAU')) {
+      bgColor = 'rgba(95, 158, 160, 0.7)'; // CadetBlue (#5f9ea0)
+    } else {
+      bgColor = getRandomColor();
+    }
+    headerElement.style.backgroundColor = bgColor;
+    
+    const contrastColor = getContrastColor(bgColor);
+    marketSelect.style.color = contrastColor;
+  }
+
   setDateAutomatically();
 
   const ai = new GoogleGenAI({ apiKey: API_KEY });
   predictButton.addEventListener('click', () => handlePrediction(ai));
+  logoElement.addEventListener('click', handleScreenshot);
 
   // Add real-time validation listeners
   inputElements.forEach(input => {
@@ -256,9 +330,11 @@ function main() {
     } else {
       dataHeader.textContent = 'Data Keluaran Terakhir';
     }
+    updateHeaderBackground();
   });
 
   setIdleState();
+  updateHeaderBackground(); // Set initial background on load
 }
 
 main();

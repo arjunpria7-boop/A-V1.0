@@ -1,5 +1,5 @@
 {
-  "name": "copy-of-copy-of--arj-predict-v1.0",
+  "name": "all-pasaran--arj-predict-v1.0",
   "private": true,
   "version": "0.0.0",
   "type": "module",
@@ -9,7 +9,8 @@
     "preview": "vite preview"
   },
   "dependencies": {
-    "@google/genai": "latest"
+    "@google/genai": "latest",
+    "html2canvas": "latest"
   },
   "devDependencies": {
     "@types/node": "^22.14.0",
