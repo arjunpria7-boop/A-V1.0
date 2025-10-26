@@ -203,6 +203,12 @@ async function handlePrediction(ai) {
       Tugas Anda adalah menganalisis 7 angka keluaran terakhir untuk pasaran **${marketText}** dengan **fokus utama untuk menemukan prediksi 2D yang paling jitu dan akurat** untuk keluaran berikutnya (Hari ke-8).
       Gunakan semua keahlian Anda, termasuk perhitungan matematis, analisis pola frekuensi, pola mistis, dan numerologi, namun **prioritaskan metode yang paling efektif untuk memprediksi 2D**.
 
+      Sebagai panduan, Anda dapat menggunakan rumus-rumus berikut dalam analisis Anda:
+      - Mistik Lama: 0=1, 2=5, 3=8, 4=7, 5=2, 6=9, 7=4, 8=3, 9=6
+      - Mistik Baru: 0=8, 1=7, 2=6, 3=9, 4=5, 5=4, 6=2, 7=1, 8=0, 9=3
+      - Index: 0=5, 1=6, 2=7, 3=8, 4=9
+      Pertimbangkan juga kemungkinan angka bolak-balik (BB). Untuk angka 2D terakhir, gunakan riwayat yang ada untuk analisis mendalam.
+
       Berikut adalah urutan angkanya, dari yang terlama hingga terbaru:
       ${formattedInputs}
 
