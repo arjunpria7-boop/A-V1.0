@@ -19,7 +19,6 @@ const marketDate = document.getElementById('market-date');
 const dataHeader = document.getElementById('data-header');
 const headerElement = document.querySelector('header');
 const downloadBtn = document.getElementById('download-btn');
-const moreOptionsBtn = document.getElementById('more-options-btn');
 
 const resultElements = {
   '4d': document.getElementById('result-4d'),
@@ -125,7 +124,6 @@ async function handleDownload() {
   // Sembunyikan elemen select dan tombol unduh yang mengganggu sebelum screenshot
   marketSelect.classList.add('screenshot-hidden');
   downloadBtn.classList.add('screenshot-hidden');
-  moreOptionsBtn.classList.add('screenshot-hidden');
 
   try {
     document.body.style.cursor = 'wait';
@@ -162,7 +160,6 @@ async function handleDownload() {
     // Pastikan elemen selalu ditampilkan kembali setelah proses selesai
     marketSelect.classList.remove('screenshot-hidden');
     downloadBtn.classList.remove('screenshot-hidden');
-    moreOptionsBtn.classList.remove('screenshot-hidden');
     document.body.style.cursor = 'default';
   }
 }
