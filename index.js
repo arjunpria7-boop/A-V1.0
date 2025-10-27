@@ -18,7 +18,8 @@ const marketDisplayText = document.getElementById('market-display-text');
 const marketDate = document.getElementById('market-date');
 const dataHeader = document.getElementById('data-header');
 const headerElement = document.querySelector('header');
-const downloadBtn = document.getElementById('download-btn'); // Updated ID
+const downloadBtn = document.getElementById('download-btn');
+const moreOptionsBtn = document.getElementById('more-options-btn');
 
 const resultElements = {
   '4d': document.getElementById('result-4d'),
@@ -124,6 +125,7 @@ async function handleDownload() {
   // Sembunyikan elemen select dan tombol unduh yang mengganggu sebelum screenshot
   marketSelect.classList.add('screenshot-hidden');
   downloadBtn.classList.add('screenshot-hidden');
+  moreOptionsBtn.classList.add('screenshot-hidden');
 
   try {
     document.body.style.cursor = 'wait';
@@ -160,6 +162,7 @@ async function handleDownload() {
     // Pastikan elemen selalu ditampilkan kembali setelah proses selesai
     marketSelect.classList.remove('screenshot-hidden');
     downloadBtn.classList.remove('screenshot-hidden');
+    moreOptionsBtn.classList.remove('screenshot-hidden');
     document.body.style.cursor = 'default';
   }
 }
@@ -202,12 +205,6 @@ async function handlePrediction(ai) {
       Anda adalah sistem prediksi ARJ, seorang master prediksi togel dengan spesialisasi utama pada 2D (dua digit terakhir).
       Tugas Anda adalah menganalisis 7 angka keluaran terakhir untuk pasaran **${marketText}** dengan **fokus utama untuk menemukan prediksi 2D yang paling jitu dan akurat** untuk keluaran berikutnya (Hari ke-8).
       Gunakan semua keahlian Anda, termasuk perhitungan matematis, analisis pola frekuensi, pola mistis, dan numerologi, namun **prioritaskan metode yang paling efektif untuk memprediksi 2D**.
-
-      Sebagai panduan, Anda dapat menggunakan rumus-rumus berikut dalam analisis Anda:
-      - Mistik Lama: 0=1, 2=5, 3=8, 4=7, 5=2, 6=9, 7=4, 8=3, 9=6
-      - Mistik Baru: 0=8, 1=7, 2=6, 3=9, 4=5, 5=4, 6=2, 7=1, 8=0, 9=3
-      - Index: 0=5, 1=6, 2=7, 3=8, 4=9
-      Pertimbangkan juga kemungkinan angka bolak-balik (BB). Untuk angka 2D terakhir, gunakan riwayat yang ada untuk analisis mendalam.
 
       Berikut adalah urutan angkanya, dari yang terlama hingga terbaru:
       ${formattedInputs}
