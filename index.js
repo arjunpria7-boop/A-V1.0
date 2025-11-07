@@ -4,8 +4,6 @@
  */
 
 import { GoogleGenAI, Type } from '@google/genai';
-import { API_KEY } from './env.js';
-import html2canvas from 'html2canvas';
 
 // --- DOM Elements ---
 const predictButton = document.getElementById('predict-btn');
@@ -18,22 +16,47 @@ const marketDisplayText = document.getElementById('market-display-text');
 const marketDate = document.getElementById('market-date');
 const dataHeader = document.getElementById('data-header');
 const headerElement = document.querySelector('header');
-const downloadBtn = document.getElementById('download-btn');
+const bbfsInput = document.getElementById('bbfs-input');
+const predictionText = document.getElementById('prediction-text');
+const predictionOutput = document.getElementById('prediction-output');
+const copyBtn = document.getElementById('copy-btn');
 
-const resultElements = {
-  '4d': document.getElementById('result-4d'),
-  tunggal: document.getElementById('result-tunggal'),
-  bbfs: document.getElementById('result-bbfs'),
-  bb3d: document.getElementById('result-bb3d'),
-  bb2d: document.getElementById('result-bb2d'),
-};
+// --- Modal Elements ---
+const settingsBtn = document.getElementById('settings-btn');
+const settingsModal = document.getElementById('settings-modal');
+const apiKeyInput = document.getElementById('api-key-input');
+const saveKeyBtn = document.getElementById('save-key-btn');
+const closeModalBtn = document.getElementById('close-modal-btn');
 
-const inputIds = ['day1', 'day2', 'day3', 'day4', 'day5', 'day6', 'day7'];
-const inputElements = inputIds.map(
-  (id) => document.getElementById(id)
-);
+// --- Toast Notification ---
+const toast = document.getElementById('toast-notification');
+let toastTimeout;
+
+
+// --- API Key Management ---
+const API_KEY_STORAGE_KEY = 'gemini-api-key';
+
+function saveApiKey(key) {
+  localStorage.setItem(API_KEY_STORAGE_KEY, key);
+}
+
+function getApiKey() {
+  return localStorage.getItem(API_KEY_STORAGE_KEY);
+}
+
 
 // --- UI State Management ---
+
+function showToast(message) {
+  if (toastTimeout) {
+    clearTimeout(toastTimeout);
+  }
+  toast.textContent = message;
+  toast.classList.remove('hidden');
+  toastTimeout = setTimeout(() => {
+    toast.classList.add('hidden');
+  }, 3000); // Hide after 3 seconds
+}
 
 function setIdleState() {
   predictButton.disabled = false;
@@ -48,43 +71,37 @@ function setLoadingState() {
   loader.classList.remove('hidden');
   errorContainer.classList.add('hidden');
   
-  // Show results container with "analyzing" text
   resultsContainer.classList.remove('hidden');
-  Object.values(resultElements).forEach(el => {
-    el.parentElement.classList.add('analyzing');
-    el.textContent = 'Menganalisis...';
-  });
+  predictionOutput.classList.add('analyzing');
+  predictionText.textContent = 'Menganalisis BBFS untuk Anda...\n\nSistem ARJ sedang meracik angka jitu, harap tunggu sebentar.';
 }
 
 function setSuccessState(resultJson) {
   loader.classList.add('hidden');
+  predictionOutput.classList.remove('analyzing');
+
+  const marketName = marketSelect.value.toUpperCase();
+  const dateText = marketDate.textContent.toUpperCase();
+
+  const predictionString = `
+${marketName}
+${dateText}
+
+𝘼𝙄 : ${resultJson.ai}
+𝘾𝙉 : ${resultJson.cn}
+𝘾𝘽 : ${resultJson.cb}
+𝘽𝘽𙁦𝙎 : ${resultJson.bbfs}
+4𝘿 : ${resultJson.prediction_4d}
+3𝘿 : ${resultJson.prediction_3d}
+2𝘿 : ${resultJson.prediction_2d}
+𝚌𝚊𝚍𝚊𝚗𝚐𝚊𝚗 : ${resultJson.cadangan}
+𝙏𝙒𝙀𝙉 : ${resultJson.twen}
+
+ʲᵃᵈⁱᵏᵃⁿ ᵖᵉʳᵇᵃⁿᵈⁱⁿᵍᵃⁿ- ᵗⁱᵈᵃᵏ ᵃᵈᵃ ʲᵃᵐⁱⁿᵃⁿ ᴶᴾ ¹⁰⁰%
+  `.trim();
+
+  predictionText.textContent = predictionString;
   
-  Object.values(resultElements).forEach(el => {
-    el.parentElement.classList.remove('analyzing');
-  });
-
-  resultElements['4d'].textContent = resultJson.prediction_4_digit;
-  resultElements.tunggal.textContent = resultJson.cb;
-  resultElements.bbfs.textContent = resultJson.bbfs;
-
-  // Format BB 3D result into two lines
-  const bb3d_parts = resultJson.bb_3d.split('*');
-  if (bb3d_parts.length === 4) {
-      const formatted_bb3d = `${bb3d_parts.slice(0, 2).join('*')}<br>${bb3d_parts.slice(2, 4).join('*')}`;
-      resultElements.bb3d.innerHTML = formatted_bb3d;
-  } else {
-      resultElements.bb3d.textContent = resultJson.bb_3d; // Fallback
-  }
-
-  // Format BB 2D result into two lines
-  const bb2d_parts = resultJson.bb_2d.split('*');
-  if (bb2d_parts.length === 6) {
-      const formatted_bb2d = `${bb2d_parts.slice(0, 3).join('*')}<br>${bb2d_parts.slice(3, 6).join('*')}`;
-      resultElements.bb2d.innerHTML = formatted_bb2d;
-  } else {
-      resultElements.bb2d.textContent = resultJson.bb_2d; // Fallback
-  }
-
   setIdleState();
 }
 
@@ -96,143 +113,81 @@ function setErrorState(message) {
   setIdleState();
 }
 
-function showConfigurationError() {
-  const allInputsAndButtons = document.querySelectorAll('input, select, button');
-  allInputsAndButtons.forEach(el => {
-    if (el) el.disabled = true;
-  });
-  
-  resultsContainer.classList.add('hidden');
-  loader.classList.add('hidden');
-
-  errorMessageElement.innerHTML = `<strong>Konfigurasi Dibutuhkan:</strong> API Key tidak ditemukan. Buka file <strong>env.js</strong> di dalam folder proyek ini dan masukkan API Key Anda di sana.`;
-  errorContainer.classList.remove('hidden');
-
-  if(predictButton) {
-    predictButton.querySelector('.button-text').textContent = 'Butuh API Key';
-    predictButton.style.background = '#555';
-    predictButton.style.animation = 'none';
-    predictButton.style.cursor = 'not-allowed';
-  }
-}
-
-// --- Screenshot/Download Logic ---
-async function handleDownload() {
-  const captureElement = document.getElementById('app-container');
-  if (!captureElement) return;
-
-  // Sembunyikan elemen select dan tombol unduh yang mengganggu sebelum screenshot
-  marketSelect.classList.add('screenshot-hidden');
-  downloadBtn.classList.add('screenshot-hidden');
-
-  try {
-    document.body.style.cursor = 'wait';
-    const canvas = await html2canvas(captureElement, {
-      useCORS: true,
-      backgroundColor: '#121212',
-      scale: 3, // Meningkatkan resolusi gambar 3x untuk kualitas tertinggi
-    });
-    
-    const marketName = marketSelect.value || 'PREDIKSI';
-    const dateString = (marketDate.textContent || 'TANPA_TANGGAL').replace(/ /g, '_');
-    const filename = `${marketName}_${dateString}.png`;
-
-    // --- NEW LOGIC: Check for native Android interface ---
-    if (window.Android && typeof window.Android.saveImage === 'function') {
-      // Running inside Median/Android app with the bridge
-      // Convert canvas to base64 and remove the data URL prefix
-      const base64Data = canvas.toDataURL('image/png').replace(/^data:image\/png;base64,/, '');
-      // Call the native function
-      window.Android.saveImage(base64Data, filename);
-      // You might want a native toast message to confirm save, configured in Median
-    } else {
-      // Fallback for regular web browsers
-      const link = document.createElement('a');
-      link.href = canvas.toDataURL('image/png');
-      link.download = filename;
-      link.click();
-    }
-
-  } catch (error) {
-    console.error('Gagal mengambil tangkapan layar:', error);
-    setErrorState('Gagal mengunduh gambar. Silakan coba lagi.');
-  } finally {
-    // Pastikan elemen selalu ditampilkan kembali setelah proses selesai
-    marketSelect.classList.remove('screenshot-hidden');
-    downloadBtn.classList.remove('screenshot-hidden');
-    document.body.style.cursor = 'default';
-  }
-}
-
-
 // --- Main Prediction Logic ---
 
-async function handlePrediction(ai) {
-  // 1. Validate inputs
-  let allValid = true;
-  const inputValues = [];
-  inputElements.forEach((el) => {
-    const value = el.value;
-    if (!/^\d{4}$/.test(value)) {
-      el.classList.add('invalid');
-      allValid = false;
-    } else {
-      el.classList.remove('invalid');
-      inputValues.push(value);
-    }
-  });
+async function handlePrediction() {
+  // 0. Check for API Key
+  const apiKey = getApiKey();
+  if (!apiKey) {
+    setErrorState('API Key belum diatur. Silakan masukkan di pengaturan.');
+    settingsModal.classList.remove('hidden');
+    return;
+  }
 
-  if (!allValid) {
-    setErrorState('Harap perbaiki input yang ditandai merah. Setiap input harus berisi 4 digit angka.');
-    // Keep results hidden if there was an error
+  // 1. Validate inputs
+  const bbfsValue = bbfsInput.value.trim();
+  if (!/^\d{5,10}$/.test(bbfsValue)) {
+    bbfsInput.classList.add('invalid');
+    setErrorState('Input BBFS harus berisi 5-10 digit angka.');
     resultsContainer.classList.add('hidden');
     return;
   }
+  bbfsInput.classList.remove('invalid');
   
   setLoadingState();
 
   try {
+    // Initialize AI with the stored key
+    const ai = new GoogleGenAI({ apiKey });
+
     // 2. Construct Prompt
     const marketNameText = marketSelect.value;
     const marketDateText = marketDate.textContent?.trim() || '';
     const marketText = `${marketNameText} ${marketDateText}`.trim();
-    const formattedInputs = inputValues.map((val, i) => `Data ke-${i + 1}: ${val}`).join('\n');
 
     const prompt = `
-      Anda adalah sistem prediksi ARJ, seorang master prediksi togel dengan spesialisasi utama pada 2D (dua digit terakhir).
-      Tugas Anda adalah menganalisis 7 angka keluaran terakhir untuk pasaran **${marketText}** dengan **fokus utama untuk menemukan prediksi 2D yang paling jitu dan akurat** untuk keluaran berikutnya (Hari ke-8).
-      Gunakan semua keahlian Anda, termasuk perhitungan matematis, analisis pola frekuensi, pola mistis, dan numerologi, namun **prioritaskan metode yang paling efektif untuk memprediksi 2D**.
+      Anda adalah sistem prediksi "ARJ Predict", seorang master togel legendaris yang memiliki intuisi tajam dan pengalaman puluhan tahun. Anda tidak hanya menghitung, tapi juga merasakan "getaran" dari setiap angka.
+      
+      Tugas Anda adalah melakukan ritual prediksi untuk pasaran **${marketText}**.
+      
+      Angka dasar (BBFS) yang diberikan oleh pengguna adalah: **${bbfsValue}**
 
-      Berikut adalah urutan angkanya, dari yang terlama hingga terbaru:
-      ${formattedInputs}
+      Gunakan BBFS ini sebagai sumber inspirasi utama Anda. Jangan hanya mengurutkan atau membuat kombinasi yang jelas. Lakukan analisis mendalam seolah-olah Anda sedang melihat data paito, rumus rahasia, dan angka tarikan gaib. Temukan angka-angka yang memiliki "kekuatan" paling besar di dalam BBFS tersebut.
 
-      Meskipun fokus utama Anda adalah 2D, berikan juga prediksi lainnya sebagai pelengkap.
-      Berdasarkan analisis mendalam Anda (terutama untuk 2D), berikan:
-      1. Prediksi 2D yang paling jitu (2 digit terakhir) untuk Hari 8.
-      2. Prediksi untuk 3 digit terakhir (3D) untuk Hari 8, yang selaras dengan prediksi 2D Anda.
-      3. Prediksi untuk angka 4 digit penuh (4D) untuk Hari 8, yang selaras dengan prediksi 2D Anda.
-      4. Prediksi Colok Bebas (CB) yang paling jitu (1 digit).
-      5. Rekomendasi angka Bolak Balik Full Set (BBFS), biasanya 5-7 digit.
-      6. Rekomendasi angka Bolak Balik untuk 3D (BB 3D), berikan 4 angka (masing-masing 3 digit) yang dipisahkan oleh tanda '*'.
-      7. Rekomendasi angka Bolak Balik untuk 2D (BB 2D), berikan 6 angka (masing-masing 2 digit) yang dipisahkan oleh tanda '*'.
+      Hasil prediksi Anda harus terasa acak, tidak terduga, dan meyakinkan, seolah-olah berasal dari wangsit seorang ahli, BUKAN dari generator angka biasa. Hindari pola yang terlalu berurutan atau mudah ditebak.
 
+      **ATURAN SANGAT PENTING untuk 2D dan Cadangan:**
+      Angka 2 digit dan kebalikannya dianggap SAMA (contoh: 12 sama dengan 21, 56 sama dengan 65). Pastikan TIDAK ADA angka duplikat seperti ini di seluruh hasil 2D dan Cadangan. Jika Anda memilih 12, maka 21 tidak boleh muncul sama sekali, baik di 2D maupun Cadangan. Cukup gunakan satu perwakilan untuk setiap pasangan angka.
 
-      Berikan jawaban Anda dalam format JSON yang ketat.
+      Sekarang, berikan hasil analisis mistis Anda untuk:
+      1.  **AI (Angka Ikut):** 4 digit dengan energi terkuat.
+      2.  **CN (Colok Naga):** 3 digit pilihan yang saling menguatkan.
+      3.  **CB (Colok Bebas):** 1 digit "bom" yang paling Anda yakini.
+      4.  **BBFS:** Kembalikan BBFS asli atau versi 7 digit yang telah Anda "sempurnakan".
+      5.  **4D:** Empat set angka 4 digit hasil terawangan Anda.
+      6.  **3D:** Lima set angka 3 digit dari kombinasi rahasia Anda.
+      7.  **2D:** Lima set angka 2 digit jitu.
+      8.  **Cadangan:** Dua set angka 2 digit untuk "jaga-jaga".
+      9.  **TWEN (Twin/Kembar):** Dua set angka kembar yang berpotensi muncul.
+
+      Sajikan hasil akhir Anda dalam format JSON yang ketat, tanpa penjelasan tambahan.
     `;
     
     // 3. Define Response Schema
     const responseSchema = {
       type: Type.OBJECT,
       properties: {
-        prediction_2_digit: { type: Type.STRING, description: 'Prediksi 2 digit terakhir yang paling akurat (format: "XX").' },
-        prediction_3_digit: { type: Type.STRING, description: 'Prediksi 3 digit terakhir (format: "XXX").' },
-        prediction_4_digit: { type: Type.STRING, description: 'Prediksi 4 digit penuh (format: "XXXX").' },
-        cb: { type: Type.STRING, description: 'Prediksi Colok Bebas (CB) yang paling jitu (1 digit).' },
-        bbfs: { type: Type.STRING, description: 'Rekomendasi angka Bolak Balik Full Set (BBFS), 5-7 digit.' },
-        bb_3d: { type: Type.STRING, description: 'Rekomendasi 4 angka Bolak Balik untuk 3D (BB 3D), dipisahkan oleh tanda *. Contoh: "123*456*789*012".' },
-        bb_2d: { type: Type.STRING, description: 'Rekomendasi 6 angka Bolak Balik untuk 2D (BB 2D), dipisahkan oleh tanda *. Contoh: "12*34*56*78*90*11".' },
+        ai: { type: Type.STRING, description: '4 digit Angka Ikut.' },
+        cn: { type: Type.STRING, description: '3 digit Colok Naga.' },
+        cb: { type: Type.STRING, description: '1 digit Colok Bebas.' },
+        bbfs: { type: Type.STRING, description: 'Rekomendasi angka Bolak Balik Full Set (BBFS).' },
+        prediction_4d: { type: Type.STRING, description: 'Empat set angka 4D, dipisahkan oleh *. Contoh: "1307*8461*7038*4671".' },
+        prediction_3d: { type: Type.STRING, description: 'Lima set angka 3D, dipisahkan oleh *. Contoh: "103*784*610*374*806".' },
+        prediction_2d: { type: Type.STRING, description: 'Lima set angka 2D, dipisahkan oleh *. Contoh: "13*07*84*61*70".' },
+        cadangan: { type: Type.STRING, description: 'Dua set angka cadangan 2D, dipisahkan oleh *. Contoh: "34*67".' },
+        twen: { type: Type.STRING, description: 'Dua set angka kembar, dipisahkan oleh *. Contoh: "11*33".' },
       },
-      required: ['prediction_2_digit', 'prediction_3_digit', 'prediction_4_digit', 'cb', 'bbfs', 'bb_3d', 'bb_2d']
+      required: ['ai', 'cn', 'cb', 'bbfs', 'prediction_4d', 'prediction_3d', 'prediction_2d', 'cadangan', 'twen']
     };
 
     // 4. Call Gemini API
@@ -267,12 +222,12 @@ async function handlePrediction(ai) {
     console.error('Error calling Gemini API:', error);
     let userMessage = 'Terjadi kesalahan saat menghubungi sistem ARJ. Silakan coba lagi.';
     if (error instanceof Error) {
-        if (error.message.toLowerCase().includes('fetch')) {
+        if (error.message.toLowerCase().includes('api key not valid')) {
+            userMessage = 'API Key yang Anda masukkan tidak valid. Periksa kembali di pengaturan.';
+        } else if (error.message.toLowerCase().includes('fetch')) {
             userMessage = 'Gagal terhubung ke sistem ARJ. Periksa koneksi internet Anda.';
         } else if (error.message.includes('429')) { // Quota limit
-            userMessage = 'Sistem ARJ sedang sibuk. Silakan coba lagi setelah beberapa saat.';
-        } else if (error.message.toLowerCase().includes('api key not valid')) {
-            userMessage = 'API Key yang Anda masukkan tidak valid. Periksa kembali file env.js.';
+            userMessage = 'Sistem ARJ sedang sibuk (batas penggunaan API tercapai). Silakan coba lagi setelah beberapa saat.';
         }
     }
     setErrorState(userMessage);
@@ -282,11 +237,6 @@ async function handlePrediction(ai) {
 // --- App Initialization ---
 
 function main() {
-  if (!API_KEY || API_KEY === "MASUKKAN_API_KEY_ANDA_DI_SINI") {
-    showConfigurationError();
-    return;
-  }
-  
   function setDateAutomatically() {
     const months = [
       'JANUARI', 'FEBRUARI', 'MARET', 'APRIL', 'MEI', 'JUNI',
@@ -336,39 +286,80 @@ function main() {
     headerElement.style.backgroundColor = bgColor;
     
     const contrastColor = getContrastColor(bgColor);
-    marketDisplayText.style.color = contrastColor; // Apply color to the display text
+    marketDisplayText.style.color = contrastColor;
     marketDate.style.color = contrastColor;
+    settingsBtn.style.color = contrastColor;
   }
 
   setDateAutomatically();
 
-  const ai = new GoogleGenAI({ apiKey: API_KEY });
-  predictButton.addEventListener('click', () => handlePrediction(ai));
-  downloadBtn.addEventListener('click', handleDownload);
+  predictButton.addEventListener('click', handlePrediction);
+  
+  copyBtn.addEventListener('click', () => {
+    if (predictionText.textContent) {
+      navigator.clipboard.writeText(predictionText.textContent).then(() => {
+        const buttonText = copyBtn.querySelector('span');
+        const buttonIcon = copyBtn.querySelector('i');
+        const originalText = buttonText.textContent;
+        
+        buttonText.textContent = 'Disalin!';
+        buttonIcon.className = 'fa-solid fa-check';
+        
+        setTimeout(() => {
+          buttonText.textContent = originalText;
+          buttonIcon.className = 'fa-regular fa-copy';
+        }, 2000);
+      }).catch(err => {
+        console.error('Gagal menyalin teks: ', err);
+        showToast('Gagal menyalin teks.');
+      });
+    }
+  });
 
-  // Add real-time validation listeners
-  inputElements.forEach(input => {
-    input.addEventListener('input', () => {
-      if (!/^\d{4}$/.test(input.value) && input.value !== '') {
-        input.classList.add('invalid');
-      } else {
-        input.classList.remove('invalid');
-      }
-    });
+  bbfsInput.addEventListener('input', () => {
+    if (!/^\d{5,10}$/.test(bbfsInput.value) && bbfsInput.value !== '') {
+      bbfsInput.classList.add('invalid');
+    } else {
+      bbfsInput.classList.remove('invalid');
+    }
   });
 
   marketSelect.addEventListener('change', () => {
-    marketDisplayText.textContent = marketSelect.value; // Update display text on change
-    if (marketSelect.value === 'SINGAPORE') {
-      dataHeader.textContent = 'Data Mingguan';
-    } else {
-      dataHeader.textContent = 'Data Keluaran Terakhir';
-    }
+    marketDisplayText.textContent = marketSelect.value;
     updateHeaderBackground();
   });
 
+  // --- Modal Event Listeners ---
+  settingsBtn.addEventListener('click', () => {
+    apiKeyInput.value = getApiKey() || ''; // Show current key on open
+    settingsModal.classList.remove('hidden');
+  });
+
+  closeModalBtn.addEventListener('click', () => {
+    settingsModal.classList.add('hidden');
+  });
+
+  saveKeyBtn.addEventListener('click', () => {
+    const newKey = apiKeyInput.value.trim();
+    if (newKey) {
+      saveApiKey(newKey);
+      settingsModal.classList.add('hidden');
+      setIdleState(); // Clear any previous 'API key not set' error
+      showToast('API Key berhasil disimpan!');
+    } else {
+      showToast('API Key tidak boleh kosong.');
+    }
+  });
+  
+  // Close modal if clicked outside of it
+  settingsModal.addEventListener('click', (event) => {
+    if (event.target === settingsModal) {
+      settingsModal.classList.add('hidden');
+    }
+  });
+
   setIdleState();
-  updateHeaderBackground(); // Set initial background on load
+  updateHeaderBackground();
 }
 
 main();

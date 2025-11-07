@@ -1,5 +1,5 @@
 {
-  "name": "fix-arj-prediksi",
+  "name": "all-pasaran--arj-predict-v1.0",
   "private": true,
   "version": "0.0.0",
   "type": "module",
@@ -9,8 +9,7 @@
     "preview": "vite preview"
   },
   "dependencies": {
-    "@google/genai": "latest",
-    "html2canvas": "latest"
+    "@google/genai": "latest"
   },
   "devDependencies": {
     "@types/node": "^22.14.0",

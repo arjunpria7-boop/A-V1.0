@@ -9,8 +9,7 @@
     <script type="importmap">
       {
         "imports": {
-          "@google/genai": "https://esm.run/@google/genai",
-          "html2canvas": "https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.esm.min.js"
+          "@google/genai": "https://esm.run/@google/genai"
         }
       }
     </script>
@@ -89,23 +88,14 @@
           </div>
           <div id="market-date"></div>
         </div>
-        <button id="download-btn" aria-label="Unduh tangkapan layar">
-          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor"><path d="M19.35 10.04C18.67 6.59 15.64 4 12 4 9.11 4 6.6 5.64 5.35 8.04 2.34 8.36 0 10.91 0 14c0 3.31 2.69 6 6 6h13c2.76 0 5-2.24 5-5 0-2.64-2.05-4.78-4.65-4.96zM17 13l-5 5-5-5h3V9h4v4h3z"/></svg>
+        <button id="settings-btn" aria-label="Pengaturan API Key">
+          <i class="fa-solid fa-cog"></i>
         </button>
       </header>
       <main>
         <div class="input-section">
-          <h2 id="data-header">Data Keluaran Terakhir</h2>
-          
-          <div id="input-grid">
-            <input type="tel" inputmode="numeric" id="day1" maxlength="4" pattern="\d{4}" placeholder="xxxx" />
-            <input type="tel" inputmode="numeric" id="day2" maxlength="4" pattern="\d{4}" placeholder="xxxx" />
-            <input type="tel" inputmode="numeric" id="day3" maxlength="4" pattern="\d{4}" placeholder="xxxx" />
-            <input type="tel" inputmode="numeric" id="day4" maxlength="4" pattern="\d{4}" placeholder="xxxx" />
-            <input type="tel" inputmode="numeric" id="day5" maxlength="4" pattern="\d{4}" placeholder="xxxx" />
-            <input type="tel" inputmode="numeric" id="day6" maxlength="4" pattern="\d{4}" placeholder="xxxx" />
-            <input type="tel" inputmode="numeric" id="day7" maxlength="4" pattern="\d{4}" placeholder="xxxx" />
-          </div>
+          <h2 id="data-header">Input BBFS</h2>
+          <input type="tel" inputmode="numeric" id="bbfs-input" maxlength="10" placeholder="Contoh: 7018346" />
           <button id="predict-btn">
             <span class="button-text">Prediksi Angka Jitu</span>
             <span class="button-icon">✨</span>
@@ -119,39 +109,39 @@
         </div>
 
         <div id="results-container" class="hidden">
-          <h2 class="results-header">Hasil Prediksi ARJ</h2>
-          <div class="cb-container">
-            <div class="result-card">
-              <h3>CB</h3>
-              <p id="result-tunggal">--</p>
+            <div class="results-header-wrapper">
+                <h2 class="results-header">Hasil Prediksi ARJ</h2>
+                <button id="copy-btn" aria-label="Salin hasil prediksi">
+                    <i class="fa-regular fa-copy"></i>
+                    <span>Salin</span>
+                </button>
             </div>
-          </div>
-          <div class="main-results-grid">
-            <div class="result-card">
-              <h3>BBFS</h3>
-              <p id="result-bbfs">--</p>
+            <div id="prediction-output">
+                <pre id="prediction-text"></pre>
             </div>
-            <div class="result-card">
-              <h3>4D</h3>
-              <p id="result-4d">--</p>
-            </div>
-          </div>
-          <div class="additional-results-grid">
-            <div class="result-card">
-              <h3>3D</h3>
-              <p id="result-bb3d">--</p>
-            </div>
-            <div class="result-card">
-              <h3>2D</h3>
-              <p id="result-bb2d">--</p>
-            </div>
-          </div>
         </div>
       </main>
       <footer>
-        <p>Disclaimer: Prediksi ini dihasilkan oleh sistem ARJ dan hanya untuk tujuan hiburan. Gunakan dengan bijak dan bertanggung jawab. Tidak ada jaminan kemenangan.</p>
+        <p>ʲᵃᵈⁱᵏᵃⁿ ᵖᵉʳᵇᵃⁿᵈⁱⁿᵍᵃⁿ- ᵗⁱᵈᵃᵏ ᵃᵈᵃ ʲᵃᵐⁱⁿᵃⁿ ᴶᴾ ¹⁰⁰%</p>
       </footer>
     </div>
+
+    <!-- API Key Settings Modal -->
+    <div id="settings-modal" class="modal-overlay hidden">
+        <div class="modal-content">
+            <h3>Pengaturan API Key</h3>
+            <p>Masukkan Gemini API Key Anda untuk menggunakan aplikasi. Kunci akan disimpan di browser Anda.</p>
+            <input type="password" id="api-key-input" placeholder="Masukkan API Key Anda di sini">
+            <div class="modal-actions">
+                <button id="save-key-btn">Simpan</button>
+                <button id="close-modal-btn">Tutup</button>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Toast Notification -->
+    <div id="toast-notification" class="hidden"></div>
+
     <script type="module" src="/index.js"></script>
   </body>
 </html>

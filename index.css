@@ -29,6 +29,11 @@
   100% { background-position: 0% 50%; }
 }
 
+@keyframes fade-in-out {
+  0%, 100% { opacity: 0; transform: translate(-50%, 20px); }
+  10%, 90% { opacity: 1; transform: translate(-50%, 0); }
+}
+
 
 @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;700&display=swap');
 @import url('https://fonts.googleapis.com/css2?family=Lora:wght@700&display=swap');
@@ -113,31 +118,6 @@ header {
   z-index: 2;
 }
 
-#download-btn {
-  background-color: rgba(255, 255, 255, 0.1);
-  border: 1px solid rgba(255, 255, 255, 0.2);
-  border-radius: 50%;
-  width: 36px;
-  height: 36px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  cursor: pointer;
-  transition: background-color 0.2s ease;
-  padding: 6px;
-  flex-shrink: 0;
-}
-
-#download-btn:hover {
-  background-color: rgba(255, 255, 255, 0.2);
-}
-
-#download-btn svg {
-  width: 100%;
-  height: 100%;
-  fill: var(--text-color);
-}
-
 .arj-logo {
   position: absolute;
   left: 50%;
@@ -201,68 +181,69 @@ header {
   cursor: default;
 }
 
+#settings-btn {
+  background: none;
+  border: none;
+  color: var(--text-color);
+  font-size: 1.2rem;
+  cursor: pointer;
+  padding: 0.5rem;
+  transition: color 0.2s, transform 0.2s;
+}
+
+#settings-btn:hover {
+  color: var(--focus-color);
+  transform: rotate(45deg);
+}
+
 .input-section {
   display: flex;
   flex-direction: column;
-  gap: 1rem;
-  padding: 1rem;
+  gap: 0.75rem;
+  padding: 0.75rem;
 }
 
 .input-section h2 {
   text-align: center;
-  font-size: 1rem;
+  font-size: 0.9rem;
   border-bottom: 1px solid var(--border-color);
-  padding-bottom: 0.25rem;
-  margin-bottom: 0.25rem;
+  padding-bottom: 0.2rem;
+  margin-bottom: 0;
   animation: rgb-text-cycle 4s linear infinite;
 }
 
-.instructions {
-  text-align: center;
-  font-size: 0.8rem;
-  color: var(--text-secondary-color);
-  margin-top: -0.5rem;
-}
-
-#input-grid {
-  display: flex;
-  flex-wrap: wrap;
-  justify-content: center;
-  gap: 0.25rem;
-}
-
-#input-grid input {
+#bbfs-input {
   background-color: rgba(44, 44, 44, 0.9);
   border: 1px solid var(--border-color);
   color: var(--text-color);
-  padding: 0.4rem;
+  padding: 0.75rem;
   border-radius: 6px;
-  font-size: 1rem;
+  font-size: 1.2rem;
   text-align: center;
   font-weight: 700;
   transition: border-color 0.2s, box-shadow 0.2s;
-  flex: 0 1 calc(25% - 0.25rem); /* Diubah: flex-grow diatur ke 0 */
-  min-width: 50px;
+  width: 100%;
+  max-width: 240px;
+  margin: 0.25rem auto;
 }
 
-#input-grid input::placeholder {
+#bbfs-input::placeholder {
   color: var(--text-secondary-color);
-  font-weight: 700;
+  font-weight: 400;
   font-size: 1rem;
-  opacity: 0.5;
+  opacity: 0.7;
 }
 
-#input-grid input:focus {
+#bbfs-input:focus {
   outline: none;
   border-color: var(--focus-color);
   box-shadow: 0 0 0 2px rgba(3, 218, 198, 0.2);
 }
 
-#input-grid input.invalid {
+#bbfs-input.invalid {
     border-color: var(--error-color);
     box-shadow: 0 0 0 2px rgba(211, 47, 47, 0.2);
 }
-
 
 #predict-btn {
   color: #121212;
@@ -278,7 +259,7 @@ header {
   justify-content: center;
   gap: 0.4rem;
   align-self: center;
-  margin-top: 0.25rem;
+  margin-top: 0;
   background: linear-gradient(90deg, hsl(0, 100%, 50%), hsl(60, 100%, 50%), hsl(120, 100%, 50%), hsl(180, 100%, 50%), hsl(240, 100%, 50%), hsl(300, 100%, 50%), hsl(0, 100%, 50%));
   background-size: 200% 200%;
   animation: rgb-background-shift 4s linear infinite;
@@ -316,12 +297,7 @@ header {
 }
 
 .hidden {
-  display: none;
-}
-
-/* Kelas utilitas baru untuk menyembunyikan elemen selama screenshot */
-.screenshot-hidden {
-  visibility: hidden !important;
+  display: none !important;
 }
 
 #error-container {
@@ -336,103 +312,203 @@ header {
   margin-top: 1rem;
 }
 
-.results-header {
-  text-align: center;
-  font-size: 1rem;
-  border-bottom: 1px solid var(--border-color);
-  padding-bottom: 0.25rem;
-  margin-bottom: 0.25rem;
-  animation: rgb-text-cycle 4s linear infinite;
-}
-
 #results-container {
   display: flex;
   flex-direction: column;
-  gap: 0.75rem;
+  gap: 0.5rem;
   padding: 1rem;
 }
 
-.main-results-grid {
-  display: grid;
-  grid-template-columns: repeat(2, 1fr);
-  gap: 0.5rem;
+.results-header-wrapper {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 0.5rem;
 }
 
-.additional-results-grid {
-  display: grid;
-  grid-template-columns: repeat(2, 1fr);
-  gap: 0.5rem;
+.results-header {
+  text-align: left;
+  font-size: 1rem;
+  animation: rgb-text-cycle 4s linear infinite;
+  margin: 0;
+  padding: 0;
+  border: none;
 }
 
-.cb-container {
+#copy-btn {
+  background-color: rgba(255, 255, 255, 0.1);
+  border: 1px solid var(--border-color);
+  color: var(--text-color);
+  padding: 0.25rem 0.5rem;
+  border-radius: 6px;
+  font-size: 0.8rem;
+  cursor: pointer;
+  transition: background-color 0.2s, color 0.2s;
   display: flex;
-  justify-content: center;
+  align-items: center;
+  gap: 0.3rem;
 }
 
-.cb-container .result-card {
-  width: 75px; /* Dibuat lebih ramping */
-  padding: 0.25rem 0.5rem; /* Padding vertikal dikurangi */
+#copy-btn:hover {
+  background-color: rgba(255, 255, 255, 0.2);
 }
 
-.cb-container .result-card h3 {
-  margin-bottom: 0; /* Menghilangkan margin bawah header */
-}
-
-.cb-container .result-card p {
-  font-size: 1.8rem; /* Ukuran font sedikit dikecilkan */
-  font-weight: 700;
-}
-
-.result-card {
+#prediction-output {
   background-color: var(--surface-color);
-  padding: 0.75rem;
   border-radius: 8px;
-  text-align: center;
+  padding: 0.75rem;
   border-left: 3px solid;
   backdrop-filter: blur(5px);
   animation: rgb-border-left-cycle 4s linear infinite;
-  transition: all 0.3s ease;
 }
 
-.result-card h3 {
-  margin-bottom: 0.15rem;
-  color: var(--text-secondary-color);
-  font-size: 0.7rem;
-  font-weight: 500;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: 4px;
-}
-
-.result-card p {
-  font-size: 1.5rem;
-  font-weight: 700;
+#prediction-text {
+  font-family: 'Courier New', Courier, monospace;
+  font-size: 0.95rem;
   color: var(--text-color);
-  transition: all 0.3s ease;
-}
-
-.result-card.analyzing p {
-  font-size: 0.8rem;
-  font-style: italic;
-  font-weight: 400;
-  color: var(--text-secondary-color);
-}
-
-.additional-results-grid .result-card p {
-  font-size: 1.1rem;
-  line-height: 1.4;
+  white-space: pre-wrap;
   word-break: break-all;
+  line-height: 1.5;
+  text-align: left;
+}
+
+#prediction-output.analyzing #prediction-text {
+  font-style: italic;
+  color: var(--text-secondary-color);
 }
 
 footer {
   text-align: center;
-  font-size: 0.65rem;
+  font-size: 0.8rem;
   color: var(--text-secondary-color);
   padding: 0.5rem;
   margin-top: 0;
   flex-shrink: 0;
 }
+
+footer p {
+  font-family: 'Times New Roman', Times, serif;
+  font-style: italic;
+  letter-spacing: 0.5px;
+}
+
+/* --- Modal Styles --- */
+.modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-color: rgba(0, 0, 0, 0.7);
+  backdrop-filter: blur(5px);
+  display: grid;
+  place-items: center;
+  z-index: 1000;
+  transition: opacity 0.3s ease;
+}
+
+.modal-overlay.hidden {
+  display: none;
+}
+
+
+.modal-content {
+  background-color: #1e1e1e;
+  padding: 1.5rem;
+  border-radius: 10px;
+  border: 1px solid var(--border-color);
+  width: 90%;
+  max-width: 400px;
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+  box-shadow: 0 5px 25px rgba(0,0,0,0.5);
+}
+
+.modal-content h3 {
+  text-align: center;
+  animation: rgb-text-cycle 4s linear infinite;
+}
+
+.modal-content p {
+  font-size: 0.85rem;
+  color: var(--text-secondary-color);
+  text-align: center;
+  line-height: 1.5;
+}
+
+#api-key-input {
+  background-color: rgba(44, 44, 44, 0.9);
+  border: 1px solid var(--border-color);
+  color: var(--text-color);
+  padding: 0.75rem;
+  border-radius: 6px;
+  font-size: 1rem;
+}
+
+#api-key-input:focus {
+  outline: none;
+  border-color: var(--focus-color);
+  box-shadow: 0 0 0 2px rgba(3, 218, 198, 0.2);
+}
+
+.modal-actions {
+  display: flex;
+  gap: 0.5rem;
+  justify-content: flex-end;
+}
+
+.modal-actions button {
+  border: none;
+  padding: 0.5rem 1rem;
+  border-radius: 6px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: background-color 0.2s, transform 0.2s;
+}
+
+#save-key-btn {
+  background-color: var(--focus-color);
+  color: #121212;
+}
+#save-key-btn:hover {
+  background-color: #04f5d6;
+  transform: translateY(-1px);
+}
+
+#close-modal-btn {
+  background-color: #444;
+  color: var(--text-color);
+}
+#close-modal-btn:hover {
+  background-color: #555;
+}
+
+/* --- Toast Notification Styles --- */
+#toast-notification {
+  position: fixed;
+  bottom: 20px;
+  left: 50%;
+  transform: translateX(-50%);
+  background-color: #1e1e1e;
+  color: var(--text-color);
+  padding: 0.75rem 1.5rem;
+  border-radius: 8px;
+  border: 1px solid var(--focus-color);
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.5);
+  z-index: 2000;
+  font-size: 0.9rem;
+  opacity: 0;
+  transition: opacity 0.4s ease, transform 0.4s ease;
+  pointer-events: none;
+}
+
+#toast-notification:not(.hidden) {
+  opacity: 1;
+  transform: translate(-50%, 0);
+  pointer-events: all;
+}
+
 
 /* --- Desktop & Tablet Enhancements --- */
 @media (min-width: 768px) {
@@ -474,19 +550,11 @@ footer {
     font-size: 1.8rem;
   }
   
-  .additional-results-grid {
-    grid-template-columns: repeat(2, 1fr); /* Membuat 2 kolom di hasil tambahan */
-  }
-
-  .result-card p {
-    font-size: 1.5rem;
-  }
-
-  .additional-results-grid .result-card p {
-    font-size: 1.2rem;
+  #prediction-text {
+    font-size: 1rem;
   }
 
   footer {
-    font-size: 0.75rem;
+    font-size: 0.9rem;
   }
 }
