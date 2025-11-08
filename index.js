@@ -28,7 +28,6 @@ const marketDate = document.getElementById('market-date');
 const dataHeader = document.getElementById('data-header');
 const headerElement = document.querySelector('header');
 const bbfsInputsContainer = document.getElementById('bbfs-inputs-container');
-const predictionText = document.getElementById('prediction-text');
 const predictionOutput = document.getElementById('prediction-output');
 const copyBtn = document.getElementById('copy-btn');
 
@@ -112,42 +111,113 @@ function setLoadingState() {
   errorContainer.classList.add('hidden');
   
   resultsContainer.classList.remove('hidden');
+  predictionOutput.innerHTML = ''; // Clear previous results
   predictionOutput.classList.add('analyzing');
-  predictionText.textContent = `Menganalisis BBFS untuk ${marketCount} pasaran...\n\nSistem ARJ sedang meracik angka jitu, harap tunggu sebentar.`;
+  
+  const loadingTextElement = document.createElement('pre');
+  loadingTextElement.textContent = `Menganalisis BBFS untuk ${marketCount} pasaran...\n\nSistem ARJ sedang meracik angka jitu, harap tunggu sebentar.`;
+  predictionOutput.appendChild(loadingTextElement);
 }
 
 function setSuccessState(results) {
   loader.classList.add('hidden');
   predictionOutput.classList.remove('analyzing');
+  predictionOutput.innerHTML = ''; // Clear loading text
   
   const dateText = getFormattedDate(marketDate.value).toUpperCase();
-  let fullPredictionString = '';
+  const DISCLAIMER_TEXT = `\n\nʲᵃᵈⁱᵏᵃⁿ ᵖᵉʳᵇᵃⁿᵈⁱⁿᵍᵃⁿ- ᵗⁱᵈᵃᵏ ᵃᵈᵃ ʲᵃᵐⁱⁿᵃⁿ ᴶᴾ ¹⁰⁰%`;
+  let fullPredictionStringToCopy = '';
 
   results.forEach((result, index) => {
     const { market, data } = result;
-    const predictionString = `
+
+    // --- Create prediction string for copying (WhatsApp format) ---
+    const predictionStringToCopy = `
+*${market.toUpperCase()}*
+${dateText}
+
+AI : ${data.ai}
+CN : ${data.cn}
+CB : ${data.cb}
+BBFS : ${data.bbfs}
+4D : ${data.prediction_4d}
+3D : ${data.prediction_3d}
+2D : ${data.prediction_2d}
+Cd : ${data.Cd}
+TWEN : ${data.twen}
+    `.trim();
+    
+    // Create a separate string for display that preserves number separators but removes bolding asterisks
+    const predictionStringForDisplay = `
 ${market.toUpperCase()}
 ${dateText}
 
-𝘼𝙄 : ${data.ai}
-𝘾𝙉 : ${data.cn}
-𝘾𝘽 : ${data.cb}
-𝘽𝘽𙁦𝙎 : ${data.bbfs}
-4𝘿 : ${data.prediction_4d}
-3𝘿 : ${data.prediction_3d}
-2𝘿 : ${data.prediction_2d}
-𝚌𝚊𝚍𝚊𝚗𝚐𝚊𝚗 : ${data.cadangan}
-𝙏𝙒𝙀𝙉 : ${data.twen}
+AI : ${data.ai}
+CN : ${data.cn}
+CB : ${data.cb}
+BBFS : ${data.bbfs}
+4D : ${data.prediction_4d}
+3D : ${data.prediction_3d}
+2D : ${data.prediction_2d}
+Cd : ${data.Cd}
+TWEN : ${data.twen}
     `.trim();
+
+    // --- Create DOM elements for display ---
+    const itemContainer = document.createElement('div');
+    itemContainer.className = 'prediction-item';
+
+    const itemHeader = document.createElement('div');
+    itemHeader.className = 'prediction-item-header';
+
+    const marketTitle = document.createElement('h3');
+    marketTitle.textContent = market.toUpperCase();
     
-    fullPredictionString += predictionString;
+    const singleCopyBtn = document.createElement('button');
+    singleCopyBtn.className = 'copy-single-btn';
+    singleCopyBtn.innerHTML = '<i class="fa-regular fa-copy"></i> Salin';
+    singleCopyBtn.addEventListener('click', () => {
+        const textToCopyForSingle = predictionStringToCopy + DISCLAIMER_TEXT;
+        navigator.clipboard.writeText(textToCopyForSingle).then(() => {
+            singleCopyBtn.innerHTML = '<i class="fa-solid fa-check"></i> Disalin!';
+            setTimeout(() => { singleCopyBtn.innerHTML = '<i class="fa-regular fa-copy"></i> Salin'; }, 2000);
+        }).catch(err => {
+            console.error('Gagal menyalin: ', err);
+            showToast('Gagal menyalin.');
+        });
+    });
+
+    itemHeader.appendChild(marketTitle);
+    itemHeader.appendChild(singleCopyBtn);
+
+    const pre = document.createElement('pre');
+    pre.textContent = predictionStringForDisplay; // Use the display-specific string
+    
+    itemContainer.appendChild(itemHeader);
+    itemContainer.appendChild(pre);
+    
+    predictionOutput.appendChild(itemContainer);
+
+    // --- Append to the full string for the "Copy All" button ---
+    fullPredictionStringToCopy += predictionStringToCopy;
     if (index < results.length - 1) {
-      fullPredictionString += `\n\n${'-'.repeat(40)}\n\n`;
+      fullPredictionStringToCopy += `\n\n${'-'.repeat(40)}\n\n`;
     }
   });
-
-  predictionText.textContent = fullPredictionString.trim() + `\n\nʲᵃᵈⁱᵏᵃⁿ ᵖᵉʳᵇᵃⁿᵈⁱⁿᵍᵃⁿ- ᵗⁱᵈᵃᵏ ᵃᵈᵃ ʲᵃᵐⁱⁿᵃⁿ ᴶᴾ ¹⁰⁰%`;
   
+  // Attach the full text to the main copy button
+  copyBtn.onclick = () => {
+      const finalCopyText = fullPredictionStringToCopy.trim() + DISCLAIMER_TEXT;
+      navigator.clipboard.writeText(finalCopyText).then(() => {
+        const buttonText = copyBtn.querySelector('span');
+        buttonText.textContent = 'Disalin!';
+        setTimeout(() => { buttonText.textContent = 'Salin Semua'; }, 2000);
+      }).catch(err => {
+        console.error('Gagal menyalin semua: ', err);
+        showToast('Gagal menyalin semua.');
+      });
+  };
+
   setIdleState();
 }
 
@@ -170,8 +240,13 @@ async function callApiForMarket(market, bbfs, dateText, ai) {
       Angka dasar (BBFS) yang diberikan oleh pengguna adalah: **${bbfs}**
       Gunakan BBFS ini sebagai sumber inspirasi utama Anda. Jangan hanya mengurutkan atau membuat kombinasi yang jelas. Lakukan analisis mendalam seolah-olah Anda sedang melihat data paito, rumus rahasia, dan angka tarikan gaib. Temukan angka-angka yang memiliki "kekuatan" paling besar di dalam BBFS tersebut.
       Hasil prediksi Anda harus terasa acak, tidak terduga, dan meyakinkan, seolah-olah berasal dari wangsit seorang ahli, BUKAN dari generator angka biasa. Hindari pola yang terlalu berurutan atau mudah ditebak.
-      **ATURAN SANGAT PENTING untuk 2D dan Cadangan:**
-      Angka 2 digit dan kebalikannya dianggap SAMA (contoh: 12 sama dengan 21, 56 sama dengan 65). Pastikan TIDAK ADA angka duplikat seperti ini di seluruh hasil 2D dan Cadangan. Jika Anda memilih 12, maka 21 tidak boleh muncul sama sekali, baik di 2D maupun di Cadangan. Cukup gunakan satu perwakilan untuk setiap pasangan angka.
+      
+      **ATURAN SANGAT PENTING untuk 2D dan Cd:**
+      Angka 2 digit dan kebalikannya dianggap SAMA (contoh: 12 sama dengan 21, 56 sama dengan 65). Pastikan TIDAK ADA angka duplikat seperti ini di seluruh hasil 2D dan Cd. Jika Anda memilih 12, maka 21 tidak boleh muncul sama sekali, baik di 2D maupun di Cd. Cukup gunakan satu perwakilan untuk setiap pasangan angka.
+
+      **ATURAN FORMAT SANGAT PENTING:**
+      Untuk nilai string pada field 'prediction_4d', 'prediction_3d', 'prediction_2d', dan 'Cd', GUNAKAN TANDA BINTANG (*) SEBAGAI PEMISAH antar set angka. CONTOH: "1234*5678*9012". JANGAN GUNAKAN KOMA.
+
       Sekarang, berikan hasil analisis mistis Anda untuk:
       1.  **AI (Angka Ikut):** 4 digit dengan energi terkuat.
       2.  **CN (Colok Naga):** 3 digit pilihan yang saling menguatkan.
@@ -180,7 +255,7 @@ async function callApiForMarket(market, bbfs, dateText, ai) {
       5.  **4D:** Empat set angka 4 digit hasil terawangan Anda.
       6.  **3D:** Lima set angka 3 digit dari kombinasi rahasia Anda.
       7.  **2D:** Lima set angka 2 digit jitu.
-      8.  **Cadangan:** Dua set angka 2 digit untuk "jaga-jaga".
+      8.  **Cd (Cadangan):** Dua set angka 2 digit untuk "jaga-jaga".
       9.  **TWEN (Twin/Kembar):** Dua set angka kembar yang berpotensi muncul.
       Sajikan hasil akhir Anda dalam format JSON yang ketat, tanpa penjelasan tambahan.
     `;
@@ -191,9 +266,9 @@ async function callApiForMarket(market, bbfs, dateText, ai) {
         ai: { type: Type.STRING }, cn: { type: Type.STRING }, cb: { type: Type.STRING },
         bbfs: { type: Type.STRING }, prediction_4d: { type: Type.STRING },
         prediction_3d: { type: Type.STRING }, prediction_2d: { type: Type.STRING },
-        cadangan: { type: Type.STRING }, twen: { type: Type.STRING },
+        Cd: { type: Type.STRING }, twen: { type: Type.STRING },
       },
-      required: ['ai', 'cn', 'cb', 'bbfs', 'prediction_4d', 'prediction_3d', 'prediction_2d', 'cadangan', 'twen']
+      required: ['ai', 'cn', 'cb', 'bbfs', 'prediction_4d', 'prediction_3d', 'prediction_2d', 'Cd', 'twen']
     };
 
     try {
@@ -422,19 +497,6 @@ function main() {
 
   predictButton.addEventListener('click', handlePrediction);
   
-  copyBtn.addEventListener('click', () => {
-    if (predictionText.textContent) {
-      navigator.clipboard.writeText(predictionText.textContent).then(() => {
-        const buttonText = copyBtn.querySelector('span');
-        buttonText.textContent = 'Disalin!';
-        setTimeout(() => { buttonText.textContent = 'Salin'; }, 2000);
-      }).catch(err => {
-        console.error('Gagal menyalin: ', err);
-        showToast('Gagal menyalin.');
-      });
-    }
-  });
-
   // --- Market Modal Listeners ---
   marketSelector.addEventListener('click', () => {
     populateMarketModal();
