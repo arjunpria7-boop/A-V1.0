@@ -197,14 +197,45 @@ header {
   padding: 0.75rem;
 }
 
-.input-section h2 {
-  text-align: center;
-  font-size: 0.9rem;
+.input-header-wrapper {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
   border-bottom: 1px solid var(--border-color);
   padding-bottom: 0.2rem;
   margin-bottom: 0;
+}
+
+.input-section h2 {
+  text-align: left; /* Adjust alignment */
+  font-size: 0.9rem;
+  border-bottom: none; /* Remove duplicate border */
+  padding-bottom: 0;
+  margin-bottom: 0;
   animation: rgb-text-cycle 4s linear infinite;
 }
+
+#fill-example-btn {
+  background-color: rgba(255, 255, 255, 0.05);
+  border: 1px solid var(--border-color);
+  color: var(--text-secondary-color);
+  padding: 0.2rem 0.5rem;
+  border-radius: 5px;
+  font-size: 0.75rem;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  display: flex;
+  align-items: center;
+  gap: 0.3rem;
+  font-weight: 500;
+}
+
+#fill-example-btn:hover {
+  background-color: rgba(255, 255, 255, 0.1);
+  color: var(--focus-color);
+  border-color: var(--focus-color);
+}
+
 
 #bbfs-inputs-container {
   display: flex;

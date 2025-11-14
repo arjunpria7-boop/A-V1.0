@@ -6,13 +6,6 @@
     <title>Prediksi ARJ</title>
     <link rel="stylesheet" href="index.css" />
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" integrity="sha512-iecdLmaskl7CVkqkXNQ/ZH/XLlvWZOJyj7Yy7tcenmpD1ypASozpmT/E0iPtmFIB46ZmdtAc9eNBvH0H/ZpiBw==" crossorigin="anonymous" referrerpolicy="no-referrer" />
-    <script type="importmap">
-      {
-        "imports": {
-          "@google/genai": "https://esm.run/@google/genai"
-        }
-      }
-    </script>
   </head>
   <body>
     <div id="app-container">
@@ -25,13 +18,17 @@
           </div>
           <input type="date" id="market-date" aria-label="Tanggal Prediksi" />
         </div>
-        <button id="settings-btn" aria-label="Pengaturan API Key">
-          <i class="fa-solid fa-cog"></i>
-        </button>
+        <!-- Settings button removed as API key is no longer needed -->
       </header>
       <main>
         <div class="input-section">
-          <h2 id="data-header">Input BBFS</h2>
+          <div class="input-header-wrapper">
+            <h2 id="data-header">Input BBFS</h2>
+            <button id="fill-example-btn" title="Isi dengan angka contoh acak">
+              <i class="fa-solid fa-wand-magic-sparkles"></i>
+              <span>Contoh</span>
+            </button>
+          </div>
           <div id="bbfs-inputs-container">
             <!-- BBFS inputs will be dynamically generated here -->
           </div>
@@ -81,18 +78,7 @@
       </div>
     </div>
 
-    <!-- API Key Settings Modal -->
-    <div id="settings-modal" class="modal-overlay hidden">
-        <div class="modal-content">
-            <h3>Pengaturan API Key</h3>
-            <p>Masukkan Gemini API Key Anda untuk menggunakan aplikasi. Kunci akan disimpan di browser Anda.</p>
-            <input type="password" id="api-key-input" placeholder="Masukkan API Key Anda di sini">
-            <div class="modal-actions">
-                <button id="save-key-btn">Simpan</button>
-                <button id="close-modal-btn">Tutup</button>
-            </div>
-        </div>
-    </div>
+    <!-- API Key Settings Modal Removed -->
     
     <!-- Toast Notification -->
     <div id="toast-notification" class="hidden"></div>

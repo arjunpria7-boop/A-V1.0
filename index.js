@@ -3,8 +3,6 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
-import { GoogleGenAI, Type } from '@google/genai';
-
 // --- Data ---
 const ALL_MARKETS = {
   "🔥 PASARAN POPULER": ["HONGKONG POOLS", "HONGKONG LOTTO", "SIDNEY POOLS", "SYDNEY LOTTO", "SINGAPORE", "CHINA POOLS", "TAIWAN", "JAPAN POOLS", "MAGNUM CAMBODIA", "BULLSEYE"],
@@ -30,6 +28,7 @@ const headerElement = document.querySelector('header');
 const bbfsInputsContainer = document.getElementById('bbfs-inputs-container');
 const predictionOutput = document.getElementById('prediction-output');
 const copyBtn = document.getElementById('copy-btn');
+const fillExampleBtn = document.getElementById('fill-example-btn');
 
 // --- Market Modal Elements ---
 const marketModal = document.getElementById('market-modal');
@@ -37,12 +36,7 @@ const marketListContainer = document.getElementById('market-list');
 const marketCount = document.getElementById('market-count');
 const confirmMarketBtn = document.getElementById('confirm-market-btn');
 
-// --- API Key Modal Elements ---
-const settingsBtn = document.getElementById('settings-btn');
-const settingsModal = document.getElementById('settings-modal');
-const apiKeyInput = document.getElementById('api-key-input');
-const saveKeyBtn = document.getElementById('save-key-btn');
-const closeModalBtn = document.getElementById('close-modal-btn');
+// --- API Key Modal Elements (REMOVED) ---
 
 // --- Toast Notification ---
 const toast = document.getElementById('toast-notification');
@@ -51,16 +45,6 @@ let toastTimeout;
 // --- State ---
 let selectedMarkets = ['HONGKONG POOLS'];
 
-// --- API Key Management ---
-const API_KEY_STORAGE_KEY = 'gemini-api-key';
-
-function saveApiKey(key) {
-  localStorage.setItem(API_KEY_STORAGE_KEY, key);
-}
-
-function getApiKey() {
-  return localStorage.getItem(API_KEY_STORAGE_KEY);
-}
 
 // --- Helpers ---
 function getFormattedDate(dateString) {
@@ -106,7 +90,7 @@ function setIdleState() {
 function setLoadingState() {
   const marketCount = selectedMarkets.length;
   predictButton.disabled = true;
-  predictButton.querySelector('.button-text').textContent = `Mencari Angka Jitu (${marketCount} Pasaran)...`;
+  predictButton.querySelector('.button-text').textContent = `Meracik Angka Jitu (${marketCount} Pasaran)...`;
   loader.classList.remove('hidden');
   errorContainer.classList.add('hidden');
   
@@ -229,78 +213,74 @@ function setErrorState(message) {
   setIdleState();
 }
 
-// --- API Call Logic ---
+// --- Local Prediction Logic ---
+function generateLocalPrediction(bbfs) {
+    const digits = [...new Set(bbfs.split(''))]; // Unique digits from BBFS
 
-async function callApiForMarket(market, bbfs, dateText, ai) {
-    const marketText = `${market} ${dateText}`.trim();
+    const shuffle = (arr) => arr.sort(() => 0.5 - Math.random());
 
-    const prompt = `
-      Anda adalah sistem prediksi "ARJ Predict", seorang master togel legendaris yang memiliki intuisi tajam dan pengalaman puluhan tahun. Anda tidak hanya menghitung, tapi juga merasakan "getaran" dari setiap angka.
-      Tugas Anda adalah melakukan ritual prediksi untuk pasaran **${marketText}**.
-      Angka dasar (BBFS) yang diberikan oleh pengguna adalah: **${bbfs}**
-      Gunakan BBFS ini sebagai sumber inspirasi utama Anda. Jangan hanya mengurutkan atau membuat kombinasi yang jelas. Lakukan analisis mendalam seolah-olah Anda sedang melihat data paito, rumus rahasia, dan angka tarikan gaib. Temukan angka-angka yang memiliki "kekuatan" paling besar di dalam BBFS tersebut.
-      Hasil prediksi Anda harus terasa acak, tidak terduga, dan meyakinkan, seolah-olah berasal dari wangsit seorang ahli, BUKAN dari generator angka biasa. Hindari pola yang terlalu berurutan atau mudah ditebak.
-      
-      **ATURAN SANGAT PENTING untuk 2D dan Cd:**
-      Angka 2 digit dan kebalikannya dianggap SAMA (contoh: 12 sama dengan 21, 56 sama dengan 65). Pastikan TIDAK ADA angka duplikat seperti ini di seluruh hasil 2D dan Cd. Jika Anda memilih 12, maka 21 tidak boleh muncul sama sekali, baik di 2D maupun di Cd. Cukup gunakan satu perwakilan untuk setiap pasangan angka.
-
-      **ATURAN FORMAT SANGAT PENTING:**
-      Untuk nilai string pada field 'prediction_4d', 'prediction_3d', 'prediction_2d', dan 'Cd', GUNAKAN TANDA BINTANG (*) SEBAGAI PEMISAH antar set angka. CONTOH: "1234*5678*9012". JANGAN GUNAKAN KOMA.
-
-      Sekarang, berikan hasil analisis mistis Anda untuk:
-      1.  **AI (Angka Ikut):** 4 digit dengan energi terkuat.
-      2.  **CN (Colok Naga):** 3 digit pilihan yang saling menguatkan.
-      3.  **CB (Colok Bebas):** 1 digit "bom" yang paling Anda yakini.
-      4.  **BBFS:** Kembalikan BBFS asli atau versi 7 digit yang telah Anda "sempurnakan".
-      5.  **4D:** Empat set angka 4 digit hasil terawangan Anda.
-      6.  **3D:** Lima set angka 3 digit dari kombinasi rahasia Anda.
-      7.  **2D:** Lima set angka 2 digit jitu.
-      8.  **Cd (Cadangan):** Dua set angka 2 digit untuk "jaga-jaga".
-      9.  **TWEN (Twin/Kembar):** Dua set angka kembar yang berpotensi muncul.
-      Sajikan hasil akhir Anda dalam format JSON yang ketat, tanpa penjelasan tambahan.
-    `;
+    const getRandomSubset = (arr, size) => {
+        const shuffled = shuffle([...arr]);
+        return shuffled.slice(0, size);
+    };
     
-    const responseSchema = {
-      type: Type.OBJECT,
-      properties: {
-        ai: { type: Type.STRING }, cn: { type: Type.STRING }, cb: { type: Type.STRING },
-        bbfs: { type: Type.STRING }, prediction_4d: { type: Type.STRING },
-        prediction_3d: { type: Type.STRING }, prediction_2d: { type: Type.STRING },
-        Cd: { type: Type.STRING }, twen: { type: Type.STRING },
-      },
-      required: ['ai', 'cn', 'cb', 'bbfs', 'prediction_4d', 'prediction_3d', 'prediction_2d', 'Cd', 'twen']
+    const generateUniqueSets = (sourceDigits, setCount, digitCount, existing = new Set()) => {
+        const sets = new Set();
+        let attempts = 0;
+        const maxAttempts = setCount * 50; // Safety break
+
+        while (sets.size < setCount && attempts < maxAttempts) {
+            const shuffled = shuffle([...sourceDigits]);
+            const newSet = shuffled.slice(0, digitCount).join('');
+            
+            if (digitCount === 2) {
+                const canonical = newSet.split('').sort().join('');
+                if (!existing.has(canonical)) {
+                    sets.add(newSet);
+                    existing.add(canonical);
+                }
+            } else {
+                sets.add(newSet);
+            }
+            attempts++;
+        }
+        return Array.from(sets);
     };
 
-    try {
-        const response = await ai.models.generateContent({
-            model: 'gemini-2.5-flash', contents: prompt,
-            config: { responseMimeType: 'application/json', responseSchema: responseSchema },
-        });
+    // AI, CN, CB
+    const ai_digits = getRandomSubset(digits, 4);
+    const cn_digits = getRandomSubset(ai_digits, 3);
+    const cb_digit = getRandomSubset(cn_digits, 1);
 
-        const responseText = response.text;
-        if (!responseText || responseText.trim() === '') {
-            throw new Error(`Respons kosong dari API untuk ${market}. Mungkin diblokir.`);
-        }
-        
-        const resultJson = JSON.parse(responseText);
-        return { market, data: resultJson, success: true };
-    } catch (error) {
-        console.error(`Error predicting for ${market}:`, error);
-        return { market, error: error.message, success: false };
-    }
+    // 2D & Cd (ensuring no reversed duplicates)
+    const twoDigitCanonicalForms = new Set();
+    const prediction_2d_sets = generateUniqueSets(digits, 5, 2, twoDigitCanonicalForms);
+    const Cd_sets = generateUniqueSets(digits, 2, 2, twoDigitCanonicalForms);
+    
+    // Twins
+    const twin_sets = generateUniqueSets(digits, 2, 1).map(d => d + d);
+
+    // 4D & 3D
+    const prediction_4d_sets = generateUniqueSets(digits, 4, 4);
+    const prediction_3d_sets = generateUniqueSets(digits, 5, 3);
+
+    return {
+        ai: ai_digits.join(''),
+        cn: cn_digits.join(''),
+        cb: cb_digit.join(''),
+        bbfs: bbfs.length > 7 ? shuffle(bbfs.split('')).slice(0, 7).join('') : bbfs,
+        prediction_4d: prediction_4d_sets.join('*') || '----',
+        prediction_3d: prediction_3d_sets.join('*') || '---',
+        prediction_2d: prediction_2d_sets.join('*') || '--',
+        Cd: Cd_sets.join('*') || '--',
+        twen: twin_sets.join('*') || '--',
+    };
 }
 
 
 // --- Main Prediction Logic ---
 
-async function handlePrediction() {
-  const apiKey = getApiKey();
-  if (!apiKey) {
-    setErrorState('API Key belum diatur. Silakan masukkan di pengaturan.');
-    settingsModal.classList.remove('hidden');
-    return;
-  }
-  
+function handlePrediction() {
   if (selectedMarkets.length === 0) {
     setErrorState('Silakan pilih setidaknya satu pasaran untuk diprediksi.');
     return;
@@ -329,39 +309,27 @@ async function handlePrediction() {
   }
   
   setLoadingState();
+  
+  // Simulate processing time for better UX
+  setTimeout(() => {
+    try {
+        const results = selectedMarkets.map(market => {
+            const predictionData = generateLocalPrediction(bbfsValues[market]);
+            return { market, data: predictionData, success: true };
+        });
 
-  try {
-    const ai = new GoogleGenAI({ apiKey });
-    const dateText = getFormattedDate(marketDate.value) || '';
+        if (results.length > 0) {
+            setSuccessState(results);
+        } else {
+            // This case should not happen with local generation unless no markets are selected, which is checked earlier.
+            setErrorState('Tidak ada prediksi yang dapat dihasilkan.');
+        }
 
-    const predictionPromises = selectedMarkets.map(market =>
-      callApiForMarket(market, bbfsValues[market], dateText, ai)
-    );
-
-    const results = await Promise.all(predictionPromises);
-
-    const successfulResults = results.filter(r => r.success);
-    const failedResults = results.filter(r => !r.success);
-
-    if (successfulResults.length > 0) {
-      setSuccessState(successfulResults);
+    } catch (error) {
+        console.error('Error during local prediction:', error);
+        setErrorState('Terjadi kesalahan tak terduga saat meracik angka.');
     }
-
-    if (failedResults.length > 0) {
-      const failedMarkets = failedResults.map(r => r.market).join(', ');
-      const message = `Berhasil memprediksi ${successfulResults.length} pasaran. Gagal untuk: ${failedMarkets}.`;
-      
-      if (successfulResults.length === 0) {
-        setErrorState(`Semua prediksi gagal. Penyebab umum: API Key tidak valid, kuota habis, atau masalah koneksi.`);
-      } else {
-        showToast(message); // Show as a non-blocking notification
-      }
-    }
-
-  } catch (error) {
-    console.error('General error in handlePrediction:', error);
-    setErrorState('Terjadi kesalahan tak terduga. Silakan coba lagi.');
-  }
+  }, 500); // 0.5 second delay
 }
 
 // --- App Initialization ---
@@ -484,7 +452,6 @@ function main() {
       
       headerElement.style.backgroundColor = bgColor;
       headerElement.style.animation = 'none'; // Stop RGB animation for specific colors
-      // You can add contrast color logic here if needed
     } else {
       // Revert to default animated border/background
       headerElement.style.backgroundColor = 'rgba(18, 18, 18, 0.2)';
@@ -496,6 +463,28 @@ function main() {
   setDateAutomatically();
 
   predictButton.addEventListener('click', handlePrediction);
+  
+  // --- Fill Example Listener ---
+  fillExampleBtn.addEventListener('click', () => {
+    const bbfsInputs = bbfsInputsContainer.querySelectorAll('input');
+    if (bbfsInputs.length === 0) {
+        showToast('Pilih pasaran terlebih dahulu.');
+        return;
+    }
+
+    bbfsInputs.forEach(input => {
+        const length = Math.floor(Math.random() * 6) + 5; // 5 to 10 digits
+        let randomBbfs = '';
+        const availableDigits = ['0', '1', '2', '3', '4', '5', '6', '7', '8', '9'];
+        for (let i = 0; i < length; i++) {
+            randomBbfs += availableDigits[Math.floor(Math.random() * availableDigits.length)];
+        }
+        input.value = randomBbfs;
+        // Trigger validation styling
+        input.dispatchEvent(new Event('input', { bubbles: true }));
+    });
+    showToast('Contoh BBFS berhasil diisi.');
+  });
   
   // --- Market Modal Listeners ---
   marketSelector.addEventListener('click', () => {
@@ -528,31 +517,10 @@ function main() {
     renderBbfsInputs();
   });
 
-
-  // --- API Key Modal Listeners ---
-  settingsBtn.addEventListener('click', () => {
-    apiKeyInput.value = getApiKey() || '';
-    settingsModal.classList.remove('hidden');
-  });
-
-  closeModalBtn.addEventListener('click', () => {
-    settingsModal.classList.add('hidden');
-  });
-
-  saveKeyBtn.addEventListener('click', () => {
-    const newKey = apiKeyInput.value.trim();
-    if (newKey) {
-      saveApiKey(newKey);
-      settingsModal.classList.add('hidden');
-      setIdleState();
-      showToast('API Key berhasil disimpan!');
-    } else {
-      showToast('API Key tidak boleh kosong.');
-    }
-  });
+  // --- API Key Modal Listeners (REMOVED) ---
   
   // Close modals if clicked on overlay
-  [settingsModal, marketModal].forEach(modal => {
+  [marketModal].forEach(modal => {
     modal.addEventListener('click', (event) => {
       if (event.target === modal) {
         modal.classList.add('hidden');
